@@ -22,18 +22,18 @@
             <div class="brand-section">
                 <img src="alappuzha_cog_logo.png" alt="Church of God Alappuzha Town Logo" class="church-header-logo">
                 <div class="brand-title-wrap">
-                    <div class="church-main-title">Church of God (Full Gospel) in India</div>
-                    <div class="church-sub-title">Alappuzha Town • Kerala State</div>
+                    <div class="church-main-title">ChurchView</div>
+                    <div class="church-sub-title">COG Alappuzha Town</div>
                 </div>
             </div>
 
             <!-- Main Mode Switcher: Bible vs VerseView Songs -->
             <div class="nav-mode-switcher">
                 <button id="nav-btn-bible" class="nav-mode-btn active" onclick="switchMainMode('BIBLE')">
-                    <span class="nav-icon">📖</span> SCRIPTURES
+                    <span class="nav-icon">📖</span> Scriptures
                 </button>
                 <button id="nav-btn-songs" class="nav-mode-btn" onclick="switchMainMode('SONGS')">
-                    <span class="nav-icon">🎵</span> SONGS (VerseView)
+                    <span class="nav-icon">🎵</span> Songs
                 </button>
             </div>
 
@@ -41,41 +41,47 @@
             <div class="search-wrapper">
                 <span class="search-icon" id="search-main-icon">🔍</span>
                 <input type="text" id="search-input" class="search-input" 
-                       placeholder="Quick Jump: Type 'John 3:16', 'റോമ 8:28', 'Gen 1:1'..." 
+                       placeholder="Quick Jump: 'John 3:16', 'റോമ 8:28', 'Song #12'..." 
                        autocomplete="off">
-                <span class="search-hint">Enter ↵</span>
+                <span class="search-hint">↵</span>
             </div>
 
-            <!-- Bible Version Selector (Shown in Scripture Mode) -->
-            <div class="version-selector-container" id="bible-version-selector-wrap">
-                <span class="version-label">English:</span>
-                <select id="english-version-select" class="version-dropdown">
-                    <option value="nkjv" selected>NKJV (New King James)</option>
-                    <option value="niv">NIV (New International)</option>
-                    <option value="kjv">KJV (King James)</option>
-                </select>
-            </div>
-
-            <!-- Display Mode Selector (Dual / Malayalam Only / English Only) -->
-            <div class="display-mode-container">
-                <span class="version-label">Display:</span>
-                <div class="segmented-control" id="screen-layout-control">
-                    <button class="seg-btn active" data-mode="dual" onclick="setScriptureDisplayMode('dual')" title="Show Malayalam + English Dual">Dual</button>
-                    <button class="seg-btn" data-mode="malayalam" onclick="setScriptureDisplayMode('malayalam')" title="Show Malayalam Only">മലയാളം</button>
-                    <button class="seg-btn" data-mode="english" onclick="setScriptureDisplayMode('english')" title="Show English Only">English</button>
-                </div>
-            </div>
-
-            <!-- Header Action Buttons -->
+            <!-- Header Action Controls -->
             <div class="header-actions">
-                <button class="btn btn-default-screen" id="default-screen-btn" onclick="toggleDefaultScreen()" title="Project Alappuzha Town Welcome/Holding Screen (Shortcut: W)">
-                    <span>🖼️</span> DEFAULT (W)
+                <!-- English Translation Dropdown -->
+                <div class="header-pill-wrap" id="bible-version-selector-wrap" title="English Bible Version">
+                    <select id="english-version-select" class="header-clean-select">
+                        <option value="nkjv" selected>NKJV</option>
+                        <option value="niv">NIV</option>
+                        <option value="kjv">KJV</option>
+                    </select>
+                </div>
+
+                <!-- Display Layout Segmented Pills -->
+                <div class="segmented-control" id="screen-layout-control" title="Projector Screen Layout">
+                    <button class="seg-btn active" data-mode="dual" onclick="setScriptureDisplayMode('dual')">Dual</button>
+                    <button class="seg-btn" data-mode="malayalam" onclick="setScriptureDisplayMode('malayalam')">മലയാളം</button>
+                    <button class="seg-btn" data-mode="english" onclick="setScriptureDisplayMode('english')">English</button>
+                </div>
+
+                <!-- Holding / Welcome Screen -->
+                <button class="btn btn-header-action btn-default-screen" id="default-screen-btn" onclick="toggleDefaultScreen()" title="Project Alappuzha Town Holding Screen (Shortcut: W)">
+                    <span>🖼️</span> Holding
                 </button>
-                <button class="btn btn-blank" id="blank-btn" onclick="toggleBlank()" title="Blackout Projector Screen (Shortcut: B)">
-                    <span class="icon">⬛</span> BLANK (B)
+
+                <!-- Blackout Screen -->
+                <button class="btn btn-header-action btn-blank" id="blank-btn" onclick="toggleBlank()" title="Blackout Screen (Shortcut: B)">
+                    <span class="icon">⬛</span> Blank
                 </button>
-                <button class="btn btn-primary" onclick="openProjectorWindow()" title="Open Audience Projector Window (Shortcut: O)">
-                    <span>📺</span> OPEN PROJECTOR (O)
+
+                <!-- Open Projector Window -->
+                <button class="btn btn-header-action btn-primary" onclick="openProjectorWindow()" title="Open Projector Window (Shortcut: O)">
+                    <span>📺</span> Projector
+                </button>
+
+                <!-- Projector Settings Modal Trigger -->
+                <button class="btn btn-header-action btn-icon-only" onclick="openProjectorSettingsModal()" title="Projector Font & Theme Settings">
+                    <span>⚙️</span>
                 </button>
             </div>
         </header>
@@ -191,19 +197,15 @@
                             <span class="chapter-header-title" id="chapter-header-text">Loading...</span>
                             <!-- Chapter Dropdown Selector -->
                             <div class="chapter-dropdown-wrap">
-                                <span style="font-size: 13px; color: #94a3b8; font-weight: 600;">Chapter:</span>
                                 <select id="chapter-select-dropdown" class="chapter-select-box"></select>
                             </div>
-                        </div>
-                        <div class="keyboard-shortcuts-hint">
-                            Navigate: <kbd>→</kbd> or <kbd>↓</kbd> Next | <kbd>←</kbd> or <kbd>↑</kbd> Prev | <kbd>W</kbd> Default Screen | <kbd>B</kbd> Blank | <kbd>/</kbd> Search
                         </div>
                     </div>
                     <!-- Quick Chapter Pills -->
                     <div class="chapter-pills-container" id="chapter-pills-bar"></div>
 
-                    <!-- Recent Verses History & Quick Recall Shelf -->
-                    <div class="history-bar-container" id="history-bar-container">
+                    <!-- Recent Verses History & Quick Recall Shelf (Visible only when history exists) -->
+                    <div class="history-bar-container" id="history-bar-container" style="display: none;">
                         <div class="history-label">
                             <span>🕒 RECENT:</span>
                         </div>
@@ -302,62 +304,34 @@
                         </button>
                     </div>
 
-                    <!-- Projector Customization Settings -->
-                    <div class="settings-group">
-                        <div class="settings-group-title">Display Settings</div>
-
-                        <div class="setting-row">
-                            <span>Screen Layout:</span>
-                            <select id="scripture-layout-select" onchange="setScriptureDisplayMode(this.value)">
-                                <option value="dual" selected>Dual (Malayalam + English)</option>
-                                <option value="malayalam">Malayalam Only</option>
-                                <option value="english">English Only</option>
-                            </select>
-                        </div>
-
-                        <div class="setting-row">
-                            <span>Church Watermark:</span>
-                            <input type="checkbox" id="toggle-watermark-check" checked style="width: 18px; height: 18px; accent-color: var(--primary-gold); cursor: pointer;">
-                        </div>
-                        
-                        <div class="setting-row">
-                            <span>Projector Theme:</span>
-                            <select id="theme-select">
-                                <option value="dark-midnight">Midnight Navy (Recommended)</option>
-                                <option value="pure-black">Pure Black (High Contrast)</option>
-                                <option value="church-blue">Deep Church Blue</option>
-                                <option value="royal-maroon">Royal Velvet</option>
-                            </select>
-                        </div>
-
-                        <div class="setting-row">
-                            <span>Malayalam Size:</span>
-                            <input type="range" id="proj-font-ml" min="30" max="68" value="46">
-                            <span id="val-font-ml" style="min-width: 38px; text-align: right; font-weight: 600;">46px</span>
-                        </div>
-
-                        <div class="setting-row">
-                            <span>English Size:</span>
-                            <input type="range" id="proj-font-en" min="20" max="50" value="30">
-                            <span id="val-font-en" style="min-width: 38px; text-align: right; font-weight: 600;">30px</span>
-                        </div>
-
-                        <!-- Edit Default Screen Button -->
-                        <div class="setting-row" style="margin-top: 10px;">
-                            <button class="btn btn-edit-screen" onclick="openDefaultScreenModal()" style="width: 100%; justify-content: center;">
-                                <span>✏️</span> Edit Default Screen Text & Logo
-                            </button>
+                    <!-- Quick Projection Layout & Actions -->
+                    <div class="sidebar-action-card">
+                        <div class="sidebar-card-title">Projector Layout</div>
+                        <div class="segmented-control full-width" id="side-screen-layout-control">
+                            <button class="seg-btn active" data-mode="dual" onclick="setScriptureDisplayMode('dual')">Dual</button>
+                            <button class="seg-btn" data-mode="malayalam" onclick="setScriptureDisplayMode('malayalam')">മലയാളം</button>
+                            <button class="seg-btn" data-mode="english" onclick="setScriptureDisplayMode('english')">English</button>
                         </div>
                     </div>
 
-                    <!-- Quick Operator Guide -->
-                    <div class="settings-group" style="font-size: 12px; color: #94a3b8; line-height: 1.5;">
-                        <div class="settings-group-title">How To Present in Church</div>
-                        <p>1. Click <strong>OPEN PROJECTOR</strong> or press <strong>O</strong>.</p>
-                        <p>2. Drag projector window to church TV/projector, press <strong>F11</strong>.</p>
-                        <p>3. Switch between <strong>📖 Scriptures</strong> and <strong>🎵 Songs</strong> using tabs.</p>
-                        <p>4. Press <strong>↓ / ↑</strong> or click any verse/stanza to project live.</p>
-                        <p>5. Press <strong>W</strong> for Default Screen, <strong>B</strong> for Blank.</p>
+                    <!-- Quick Screen Blackout & Holding Toggles -->
+                    <div class="sidebar-screen-toggles">
+                        <button class="btn-side-toggle" id="side-default-btn" onclick="toggleDefaultScreen()" title="Holding / Welcome Screen (Shortcut: W)">
+                            <span>🖼️</span> Holding Screen (W)
+                        </button>
+                        <button class="btn-side-toggle" id="side-blank-btn" onclick="toggleBlank()" title="Blackout Projector Screen (Shortcut: B)">
+                            <span class="icon">⬛</span> Blackout (B)
+                        </button>
+                    </div>
+
+                    <!-- Clean Settings & Shortcuts Triggers -->
+                    <div class="sidebar-bottom-links">
+                        <button class="btn-side-link" onclick="openProjectorSettingsModal()">
+                            <span>⚙️</span> Projector & Font Settings
+                        </button>
+                        <button class="btn-side-link" onclick="openHelpModal()">
+                            <span>⌨️</span> Keyboard Shortcuts & Tips
+                        </button>
                     </div>
                 </div>
             </aside>
@@ -476,6 +450,86 @@
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeAddSongModal()">Cancel</button>
                 <button class="btn btn-primary" onclick="saveCustomSong()">💾 Save Song to Library</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Projector & Font Settings -->
+    <div id="projector-settings-modal" class="modal-backdrop" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div class="modal-title">⚙️ Projector & Font Settings</div>
+                <button class="modal-close-btn" onclick="closeProjectorSettingsModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Projector Theme:</label>
+                    <select id="theme-select" class="form-control" onchange="broadcastSettings()">
+                        <option value="dark-midnight" selected>Midnight Navy (High Clarity)</option>
+                        <option value="pure-black">Pure Black (OLED / High Contrast)</option>
+                        <option value="church-blue">Deep Church Blue</option>
+                        <option value="royal-maroon">Royal Velvet</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <label>Projector Malayalam Font Size:</label>
+                        <span id="val-font-ml" style="font-weight: 700; color: var(--primary-gold);">46px</span>
+                    </div>
+                    <input type="range" id="proj-font-ml" class="clean-slider" min="30" max="68" value="46" oninput="onProjFontMlChange(this.value)">
+                </div>
+
+                <div class="form-group">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <label>Projector English Font Size:</label>
+                        <span id="val-font-en" style="font-weight: 700; color: var(--primary-gold);">30px</span>
+                    </div>
+                    <input type="range" id="proj-font-en" class="clean-slider" min="20" max="50" value="30" oninput="onProjFontEnChange(this.value)">
+                </div>
+
+                <div class="form-group" style="flex-direction: row; align-items: center; justify-content: space-between; padding: 10px 0; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                    <div>
+                        <div style="font-size: 13.5px; font-weight: 600; color: #f1f5f9;">Church Watermark Emblem</div>
+                        <div style="font-size: 11.5px; color: #94a3b8;">Show subtle Alappuzha Town emblem on audience display</div>
+                    </div>
+                    <input type="checkbox" id="toggle-watermark-check" checked onchange="broadcastSettings()" style="width: 20px; height: 20px; accent-color: var(--primary-gold); cursor: pointer;">
+                </div>
+
+                <div class="form-group" style="margin-top: 6px;">
+                    <button class="btn btn-secondary" onclick="openDefaultScreenModal(); closeProjectorSettingsModal();" style="width: 100%; justify-content: center;">
+                        <span>✏️</span> Edit Welcome / Holding Screen Text & Logo
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeProjectorSettingsModal()">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Keyboard Shortcuts & Help -->
+    <div id="help-modal" class="modal-backdrop" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div class="modal-title">⌨️ Keyboard Shortcuts & Operator Guide</div>
+                <button class="modal-close-btn" onclick="closeHelpModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="shortcuts-grid">
+                    <div class="shortcut-item"><kbd>→</kbd> or <kbd>↓</kbd> <span>Next Verse / Song Stanza</span></div>
+                    <div class="shortcut-item"><kbd>←</kbd> or <kbd>↑</kbd> <span>Previous Verse / Song Stanza</span></div>
+                    <div class="shortcut-item"><kbd>Enter</kbd> <span>Project highlighted verse / stanza</span></div>
+                    <div class="shortcut-item"><kbd>/</kbd> <span>Quick jump into Search bar</span></div>
+                    <div class="shortcut-item"><kbd>W</kbd> <span>Toggle Welcome / Holding screen</span></div>
+                    <div class="shortcut-item"><kbd>B</kbd> <span>Toggle Pure Blackout screen</span></div>
+                    <div class="shortcut-item"><kbd>O</kbd> <span>Open Audience Projector window</span></div>
+                    <div class="shortcut-item"><kbd>M</kbd> <span>Switch Scriptures vs Songs mode</span></div>
+                    <div class="shortcut-item"><kbd>F11</kbd> <span>Fullscreen on church projector / TV</span></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeHelpModal()">Got It</button>
             </div>
         </div>
     </div>

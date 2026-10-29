@@ -480,8 +480,8 @@ function loadChapter(bookIdx, chapterNum) {
                 <span class="live-tag">LIVE</span>
             </div>
             <div class="verse-text-content">
-                <div class="verse-ml" style="font-size: ${malFontSize}px;">${v.ml}</div>
-                <div class="verse-en" style="font-size: ${engFontSize}px;">${engText}</div>
+                <div class="verse-ml">${v.ml}</div>
+                <div class="verse-en">${engText}</div>
             </div>
         `;
 
@@ -577,8 +577,8 @@ function projectVerse(bookIdx, chapterNum, verseNum) {
         showChurchLogo: showWatermark,
         isBlank: false,
         theme: currentTheme,
-        malFontSize: parseInt(document.getElementById('proj-font-ml').value),
-        engFontSize: parseInt(document.getElementById('proj-font-en').value)
+        malFontSize: parseInt(document.getElementById('proj-font-ml')?.value || malFontSize),
+        engFontSize: parseInt(document.getElementById('proj-font-en')?.value || engFontSize)
     };
 
     channel.postMessage(payload);
@@ -831,8 +831,8 @@ function renderSongView(songIdx) {
                 <span class="stanza-label-badge">${st.label}</span>
                 ${isLive ? '<span class="stanza-live-tag">🔴 LIVE ON PROJECTOR</span>' : ''}
             </div>
-            <div class="stanza-text-ml" style="font-size: ${Math.round(malFontSize * 0.46)}px;">${st.ml}</div>
-            <div class="stanza-text-en" style="font-size: ${Math.round(engFontSize * 0.48)}px;">${st.en || ''}</div>
+            <div class="stanza-text-ml">${st.ml}</div>
+            <div class="stanza-text-en">${st.en || ''}</div>
         `;
 
         card.onclick = () => {
@@ -902,8 +902,8 @@ function projectSong(songIdx, stanzaIdx) {
         showChurchLogo: showWatermark,
         isBlank: false,
         theme: currentTheme,
-        malFontSize: parseInt(document.getElementById('proj-font-ml').value),
-        engFontSize: parseInt(document.getElementById('proj-font-en').value)
+        malFontSize: parseInt(document.getElementById('proj-font-ml')?.value || malFontSize),
+        engFontSize: parseInt(document.getElementById('proj-font-en')?.value || engFontSize)
     };
 
     channel.postMessage(payload);
@@ -1174,9 +1174,18 @@ function updateDisplayModeUI() {
     if (defaultBtn) {
         defaultBtn.classList.toggle('active', displayMode === 'DEFAULT');
     }
+    const sideDefBtn = document.getElementById('side-default-btn');
+    if (sideDefBtn) {
+        sideDefBtn.classList.toggle('active', displayMode === 'DEFAULT');
+    }
     if (blankBtn) {
         blankBtn.classList.toggle('blank-active', displayMode === 'BLACK');
         blankBtn.innerHTML = (displayMode === 'BLACK') ? `<span class="icon">⬛</span> UNBLANK (B)` : `<span class="icon">⬛</span> BLANK (B)`;
+    }
+    const sideBlankBtn = document.getElementById('side-blank-btn');
+    if (sideBlankBtn) {
+        sideBlankBtn.classList.toggle('blank-active', displayMode === 'BLACK');
+        sideBlankBtn.innerHTML = (displayMode === 'BLACK') ? `<span>☀️</span> Unblank Screen (B)` : `<span>⬛</span> Blackout (B)`;
     }
     const mobBlank = document.getElementById('mob-blank-btn');
     if (mobBlank) {
@@ -1533,7 +1542,7 @@ function setScriptureDisplayMode(mode) {
 }
 
 function applyScriptureLayoutUI(layout) {
-    document.querySelectorAll('#screen-layout-control .seg-btn').forEach(btn => {
+    document.querySelectorAll('#screen-layout-control .seg-btn, #side-screen-layout-control .seg-btn').forEach(btn => {
         btn.classList.toggle('active', btn.getAttribute('data-mode') === layout);
     });
 
@@ -1589,14 +1598,17 @@ function addVerseToHistory(bookIdx, chapter, verse) {
 }
 
 function renderHistoryChips() {
+    const bar = document.getElementById('history-bar-container');
     const container = document.getElementById('history-chips-list');
     if (!container) return;
 
     if (verseHistory.length === 0) {
-        container.innerHTML = `<span class="history-empty-hint">Projected verses will appear here for 1-click recall</span>`;
+        if (bar) bar.style.display = 'none';
+        container.innerHTML = '';
         return;
     }
 
+    if (bar) bar.style.display = 'flex';
     container.innerHTML = '';
     verseHistory.forEach((item) => {
         const isCurrent = (liveSongIndex === -1 && item.bookIdx === liveBookIndex && item.chapter === liveChapter && item.verse === liveVerse);
@@ -1617,6 +1629,68 @@ function clearVerseHistory() {
     verseHistory = [];
     localStorage.removeItem('church_verse_history');
     renderHistoryChips();
+}
+
+/* ========================================================= */
+/* PROJECTOR SETTINGS & HELP MODALS                          */
+/* ========================================================= */
+function openProjectorSettingsModal() {
+    const modal = document.getElementById('projector-settings-modal');
+    if (modal) modal.style.display = 'flex';
+}
+
+function closeProjectorSettingsModal() {
+    const modal = document.getElementById('projector-settings-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+function openHelpModal() {
+    const modal = document.getElementById('help-modal');
+    if (modal) modal.style.display = 'flex';
+}
+
+function closeHelpModal() {
+    const modal = document.getElementById('help-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+function onProjFontMlChange(val) {
+    malFontSize = parseInt(val) || 46;
+    const badge = document.getElementById('val-font-ml');
+    if (badge) badge.innerText = `${val}px`;
+    broadcastSettings();
+}
+
+function onProjFontEnChange(val) {
+    engFontSize = parseInt(val) || 30;
+    const badge = document.getElementById('val-font-en');
+    if (badge) badge.innerText = `${val}px`;
+    broadcastSettings();
+}
+
+function broadcastSettings() {
+    const themeSelect = document.getElementById('theme-select');
+    if (themeSelect) currentTheme = themeSelect.value;
+    
+    const watermarkCheck = document.getElementById('toggle-watermark-check');
+    if (watermarkCheck) showWatermark = watermarkCheck.checked;
+
+    const payload = {
+        type: 'SETTINGS_UPDATE',
+        theme: currentTheme,
+        malFontSize: malFontSize,
+        engFontSize: engFontSize,
+        showWatermark: showWatermark,
+        showChurchLogo: showWatermark,
+        scriptureLayout: scriptureLayout
+    };
+    channel.postMessage(payload);
+
+    if (liveSongIndex !== -1) {
+        projectSong(liveSongIndex, liveStanzaIndex);
+    } else {
+        projectVerse(liveBookIndex, liveChapter, liveVerse);
+    }
 }
 
 window.onload = init;
