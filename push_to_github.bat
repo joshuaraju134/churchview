@@ -1,7 +1,7 @@
 @echo off
 title Push ChurchView to GitHub
 cd /d "%~dp0"
-set "PATH=%LOCALAPPDATA%\Programs\Git\cmd;%PATH%"
+set "PATH=%LOCALAPPDATA%\Programs\Git\cmd;%LOCALAPPDATA%\Programs\Git\bin;%LOCALAPPDATA%\Programs\Git\ucrt64\bin;%PATH%"
 
 echo ==========================================================
 echo   Pushing ChurchView with 1,054 Songs to GitHub...
