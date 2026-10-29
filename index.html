@@ -132,7 +132,10 @@
             <aside class="books-sidebar" id="sidebar-songs" style="display: none;">
                 <div class="sidebar-top-bar">
                     <div class="sidebar-heading">VerseView Songs (ഗാനങ്ങൾ)</div>
-                    <button class="btn-mini-add-song" onclick="openAddSongModal()" title="Add Custom Church Song">+ Add Song</button>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="sidebar-count-badge" id="songs-count-badge">1054 Songs</span>
+                        <button class="btn-mini-add-song" onclick="openAddSongModal()" title="Add Custom Church Song">+ Add</button>
+                    </div>
                 </div>
 
                 <!-- Songs Search Input & Filter Tabs -->

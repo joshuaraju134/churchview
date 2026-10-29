@@ -617,9 +617,11 @@ function loadCustomSongs() {
 function renderSongList() {
     const container = document.getElementById('songs-list-container');
     const emptyMsg = document.getElementById('songs-empty-msg');
+    const songCountBadge = document.getElementById('songs-count-badge');
     if (!container) return;
     container.innerHTML = '';
 
+    const fragment = document.createDocumentFragment();
     const cleanQuery = songSearchQuery.trim().toLowerCase();
     let visibleCount = 0;
 
@@ -657,7 +659,7 @@ function renderSongList() {
         btn.className = `song-item-btn ${isViewing ? 'active' : ''} ${isLive ? 'live-projecting' : ''}`;
         btn.id = `song-item-${idx}`;
 
-        const songNumStr = (s.number < 10) ? `#0${s.number}` : `#${s.number}`;
+        const songNumStr = `#${s.number}`;
         const stanzaCountStr = s.stanzas ? `${s.stanzas.length} stanzas` : '';
 
         btn.innerHTML = `
@@ -672,8 +674,14 @@ function renderSongList() {
         `;
 
         btn.onclick = () => selectSong(idx);
-        container.appendChild(btn);
+        fragment.appendChild(btn);
     });
+
+    container.appendChild(fragment);
+
+    if (songCountBadge) {
+        songCountBadge.innerText = `${visibleCount} Songs`;
+    }
 
     if (emptyMsg) {
         emptyMsg.style.display = (visibleCount === 0) ? 'flex' : 'none';
