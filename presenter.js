@@ -198,6 +198,12 @@ function switchMainMode(mode) {
     if (centerBible) centerBible.style.display = isBible ? 'flex' : 'none';
     if (centerSongs) centerSongs.style.display = isBible ? 'none' : 'flex';
 
+    // Update Mobile Nav Tab Labels
+    const libLabel = document.getElementById('mob-tab-library-label');
+    const contentLabel = document.getElementById('mob-tab-content-label');
+    if (libLabel) libLabel.innerText = isBible ? 'Books' : 'Songs';
+    if (contentLabel) contentLabel.innerText = isBible ? 'Verses' : 'Stanzas';
+
     // Toggle Bible English Version Dropdown
     const versionWrap = document.getElementById('bible-version-selector-wrap');
     if (versionWrap) versionWrap.style.display = isBible ? 'flex' : 'none';
@@ -213,6 +219,40 @@ function switchMainMode(mode) {
         }
     }
 }
+
+/* ========================================================= */
+/* MOBILE RESPONSIVE TAB CONTROLLER                          */
+/* ========================================================= */
+let currentMobileTab = 'library'; // 'library' | 'content' | 'live'
+
+function setMobileTab(tab) {
+    currentMobileTab = tab;
+    const grid = document.querySelector('.workbench-grid');
+    if (grid) {
+        grid.setAttribute('data-mob-tab', tab);
+    }
+    
+    document.querySelectorAll('.mobile-nav-tab').forEach(t => t.classList.remove('active'));
+    const activeTab = document.getElementById(`mob-tab-${tab}`);
+    if (activeTab) activeTab.classList.add('active');
+
+    // Scroll top for clean focus
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateMobileLiveBar() {
+    const badge = document.getElementById('mob-live-badge-text');
+    if (!badge) return;
+    if (liveSongIndex !== -1) {
+        const song = songsData[liveSongIndex];
+        const stanza = (song && song.stanzas) ? song.stanzas[liveStanzaIndex] : null;
+        badge.innerText = `Song #${song ? song.number : ''}: ${stanza ? stanza.label : 'Stanza'}`;
+    } else {
+        const book = bibleData[liveBookIndex];
+        badge.innerText = `${book ? book.name_en : ''} ${liveChapter}:${liveVerse}`;
+    }
+}
+
 
 /* ========================================================= */
 /* 1. BOOKS SIDEBAR SEARCH & SELECTION                      */
@@ -329,6 +369,10 @@ function selectBook(bookIdx) {
     const book = bibleData[bookIdx];
     renderChapterBar(book);
     loadChapter(bookIdx, 1);
+
+    if (window.innerWidth <= 1024) {
+        setMobileTab('content');
+    }
 }
 
 function selectBookView(bookIdx, chapterNum) {
@@ -345,6 +389,10 @@ function selectBookView(bookIdx, chapterNum) {
     const book = bibleData[bookIdx];
     renderChapterBar(book);
     loadChapter(bookIdx, chapterNum);
+
+    if (window.innerWidth <= 1024) {
+        setMobileTab('content');
+    }
 }
 
 /* ========================================================= */
@@ -535,6 +583,7 @@ function projectVerse(bookIdx, chapterNum, verseNum) {
 
     channel.postMessage(payload);
     localStorage.setItem('church_bible_state', JSON.stringify(payload));
+    updateMobileLiveBar();
     localStorage.setItem('church_live_state', JSON.stringify(payload));
 }
 
@@ -726,6 +775,10 @@ function selectSong(songIdx) {
     }
 
     renderSongView(songIdx);
+
+    if (window.innerWidth <= 1024) {
+        setMobileTab('content');
+    }
 }
 
 function renderSongView(songIdx) {
@@ -855,6 +908,7 @@ function projectSong(songIdx, stanzaIdx) {
 
     channel.postMessage(payload);
     localStorage.setItem('church_live_state', JSON.stringify(payload));
+    updateMobileLiveBar();
 }
 
 function projectCurrentSongStanza() {
@@ -1123,6 +1177,11 @@ function updateDisplayModeUI() {
     if (blankBtn) {
         blankBtn.classList.toggle('blank-active', displayMode === 'BLACK');
         blankBtn.innerHTML = (displayMode === 'BLACK') ? `<span class="icon">⬛</span> UNBLANK (B)` : `<span class="icon">⬛</span> BLANK (B)`;
+    }
+    const mobBlank = document.getElementById('mob-blank-btn');
+    if (mobBlank) {
+        mobBlank.classList.toggle('active', displayMode === 'BLACK');
+        mobBlank.innerText = (displayMode === 'BLACK') ? '☀️' : '⬛';
     }
 
     if (previewVerseMode && previewDefaultMode && previewBlankOverlay) {

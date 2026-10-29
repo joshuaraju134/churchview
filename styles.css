@@ -1997,3 +1997,445 @@ body.layout-english .projector-text-en {
     color: #fde68a;
 }
 
+/* ========================================================= */
+/* RESPONSIVE DESIGN FOR MOBILE & TABLETS                    */
+/* ========================================================= */
+
+/* Desktop defaults (hidden above 1024px) */
+.mobile-nav-bar,
+.mobile-bottom-bar,
+.mob-back-btn {
+    display: none;
+}
+
+/* Tablets & Mobile Devices (<= 1024px) */
+@media (max-width: 1024px) {
+    /* Enable mobile tab navigation bar */
+    .mobile-nav-bar {
+        display: flex;
+        background: #141824;
+        border-bottom: 1px solid var(--border-color);
+        padding: 6px 10px;
+        gap: 8px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+    .mobile-nav-tab {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 10px 8px;
+        background: #0f121d;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: #94a3b8;
+        font-size: 13.5px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        min-height: 44px;
+    }
+    .mobile-nav-tab.active {
+        background: linear-gradient(135deg, #1e293b, #1e3a8a);
+        border-color: #3b82f6;
+        color: #ffffff;
+        box-shadow: 0 2px 10px rgba(59, 130, 246, 0.3);
+    }
+    .mob-live-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #ef4444;
+        box-shadow: 0 0 6px #ef4444;
+        display: inline-block;
+    }
+
+    /* Back Button in Content Headers */
+    .mob-back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 7px 14px;
+        border-radius: 7px;
+        background: #1e2437;
+        border: 1px solid var(--border-color);
+        color: var(--primary-gold);
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        white-space: nowrap;
+        min-height: 38px;
+        transition: all 0.15s ease;
+    }
+    .mob-back-btn:active {
+        background: var(--primary-gold);
+        color: #0b0f19;
+    }
+
+    /* Mobile Bottom Sticky Bar */
+    .mobile-bottom-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(15, 17, 23, 0.96);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-top: 1px solid var(--border-color);
+        padding: 8px 14px;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 999;
+        height: 60px;
+        gap: 10px;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.6);
+    }
+    .mob-live-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        flex: 1;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.04);
+        padding: 6px 10px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .mob-live-badge-text {
+        font-size: 13.5px;
+        font-weight: 700;
+        color: #f1f5f9;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .mob-quick-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .mob-btn-action {
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        background: #1e2437;
+        border: 1px solid var(--border-color);
+        color: #f1f5f9;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+    .mob-btn-action:active {
+        transform: scale(0.95);
+    }
+    .mob-btn-action.mob-btn-blank.active {
+        background: var(--accent-red);
+        border-color: var(--accent-red);
+        color: #fff;
+        box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+    }
+    .mob-btn-proj {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        border-color: #3b82f6;
+    }
+
+    /* Outer Container & Body on Mobile */
+    body {
+        overflow-y: auto;
+        height: auto;
+        min-height: 100vh;
+    }
+    .app-container {
+        height: auto;
+        min-height: 100vh;
+        padding-bottom: 74px; /* Clearance for sticky bottom bar */
+        display: block;
+    }
+
+    /* App Header Responsive Layout */
+    .app-header {
+        flex-wrap: wrap;
+        padding: 12px 14px;
+        gap: 10px;
+    }
+    .brand-section {
+        flex: 1 1 200px;
+    }
+    .church-header-logo {
+        height: 38px;
+    }
+    .church-main-title {
+        font-size: 13.5px;
+    }
+    .church-sub-title {
+        font-size: 10.5px;
+    }
+
+    /* Mode Switcher full width */
+    .nav-mode-switcher {
+        width: 100%;
+        order: 2;
+        display: flex;
+        gap: 6px;
+    }
+    .nav-mode-btn {
+        flex: 1;
+        justify-content: center;
+        padding: 9px;
+        font-size: 13px;
+        min-height: 42px;
+    }
+
+    /* Search bar full width */
+    .search-wrapper {
+        width: 100%;
+        max-width: 100%;
+        order: 3;
+    }
+    .search-hint {
+        display: none;
+    }
+
+    /* Selector Controls row */
+    .version-selector-container,
+    .display-mode-container {
+        order: 4;
+        flex: 1 1 150px;
+    }
+    .version-dropdown {
+        width: 100%;
+    }
+
+    .header-actions {
+        order: 5;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+    }
+    .header-actions .btn {
+        flex: 1;
+        justify-content: center;
+        padding: 10px 8px;
+        font-size: 12px;
+        min-height: 42px;
+    }
+
+    /* Workbench Grid on Mobile: switch between tabs */
+    .workbench-grid {
+        display: block;
+        height: auto;
+        overflow: visible;
+    }
+
+    /* Tab 1: Library (Books or Songs) */
+    .workbench-grid[data-mob-tab="library"] .books-sidebar {
+        display: flex !important;
+        width: 100%;
+        height: calc(100vh - 210px);
+        min-height: 480px;
+        border-right: none;
+    }
+    .workbench-grid[data-mob-tab="content"] .books-sidebar,
+    .workbench-grid[data-mob-tab="live"] .books-sidebar {
+        display: none !important;
+    }
+
+    /* Tab 2: Content (Verses or Stanzas) */
+    .workbench-grid[data-mob-tab="content"] .center-panel {
+        display: flex !important;
+        width: 100%;
+        height: calc(100vh - 210px);
+        min-height: 480px;
+    }
+    .workbench-grid:not([data-mob-tab="content"]) .center-panel {
+        display: none !important;
+    }
+
+    /* Tab 3: Live Screen Mirror & Settings */
+    .workbench-grid[data-mob-tab="live"] .preview-sidebar {
+        display: flex !important;
+        width: 100%;
+        height: auto;
+        min-height: 480px;
+        border-left: none;
+    }
+    .workbench-grid:not([data-mob-tab="live"]) .preview-sidebar {
+        display: none !important;
+    }
+
+    /* Center Panel Header for Mobile */
+    .chapter-header-row,
+    .song-header-row {
+        flex-wrap: wrap;
+        gap: 10px;
+        padding-bottom: 8px;
+    }
+    .chapter-title-group,
+    .song-header-main {
+        width: 100%;
+    }
+    .keyboard-shortcuts-hint {
+        display: none;
+    }
+
+    /* Touch-friendly verse scroll */
+    .verses-scroll-area,
+    .stanzas-scroll-area {
+        padding: 12px 14px;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Responsive verse cards */
+    .verse-card {
+        padding: 14px 16px;
+        gap: 12px;
+        border-radius: 10px;
+    }
+    .verse-ml {
+        font-size: 21px !important;
+        line-height: 1.55;
+    }
+    .verse-en {
+        font-size: 15.5px !important;
+        line-height: 1.45;
+    }
+
+    /* Responsive stanza cards */
+    .stanza-card {
+        padding: 14px 16px;
+        border-radius: 10px;
+    }
+    .stanza-text-ml {
+        font-size: 20px !important;
+        line-height: 1.5;
+    }
+    .stanza-text-en {
+        font-size: 14.5px !important;
+        line-height: 1.45;
+    }
+
+    /* Audience Screen Mirror in Tab 3 */
+    .preview-sidebar {
+        padding: 16px 14px;
+    }
+    .preview-screen {
+        max-width: 100%;
+        height: auto;
+        aspect-ratio: 16 / 9;
+    }
+
+    /* Quick navigation in Tab 3 */
+    .quick-nav-row {
+        margin: 14px 0;
+    }
+    .btn-nav {
+        padding: 12px;
+        font-size: 14px;
+        min-height: 46px;
+    }
+}
+
+/* Small Smartphone Screens (<= 640px) */
+@media (max-width: 640px) {
+    .brand-section {
+        gap: 8px;
+    }
+    .church-main-title {
+        font-size: 12.5px;
+    }
+    .church-sub-title {
+        font-size: 9.5px;
+    }
+    .book-btn,
+    .song-item-btn {
+        padding: 10px 12px;
+        min-height: 48px;
+    }
+    .filter-pill-group {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
+    }
+    .pill-filter-btn {
+        flex: 1 0 auto;
+        min-width: 72px;
+        text-align: center;
+        padding: 7px 10px;
+        font-size: 11.5px;
+    }
+    .chapter-pills-bar,
+    .stanzas-pills-bar {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 6px 2px;
+    }
+    .chapter-pill,
+    .stanza-pill {
+        min-width: 40px;
+        min-height: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+    }
+    .modal-dialog {
+        max-width: 95vw;
+        border-radius: 12px;
+    }
+}
+
+/* Projector Screen Mobile & Tablet Responsiveness */
+@media (max-width: 768px) {
+    .projector-viewport {
+        padding: 16px;
+    }
+    .projector-ref-badge {
+        font-size: 15px;
+        padding: 6px 14px;
+    }
+    .projector-text-ml {
+        font-size: clamp(22px, 5.8vw, 42px) !important;
+        line-height: 1.45;
+    }
+    .projector-text-en {
+        font-size: clamp(14px, 4vw, 24px) !important;
+        line-height: 1.4;
+    }
+    .holding-card {
+        width: 95vw;
+        height: auto;
+        min-height: 84vh;
+        padding: 24px 14px;
+        border-radius: 18px;
+    }
+    .holding-emblem-img {
+        height: 110px;
+    }
+    .holding-title-main {
+        font-size: 16px;
+        letter-spacing: 1px;
+    }
+    .holding-church-town {
+        font-size: 28px;
+        letter-spacing: 1.5px;
+    }
+    .holding-motto {
+        font-size: 13px;
+        letter-spacing: 2px;
+    }
+    .holding-verse-quote {
+        font-size: 12px;
+    }
+}
+
+

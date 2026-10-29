@@ -80,8 +80,25 @@
             </div>
         </header>
 
+        <!-- Mobile Section Navigation Tabs (Visible on screens <= 1024px) -->
+        <nav class="mobile-nav-bar" id="mobile-nav-bar">
+            <button class="mobile-nav-tab active" id="mob-tab-library" onclick="setMobileTab('library')">
+                <span class="mob-tab-icon">📚</span>
+                <span class="mob-tab-label" id="mob-tab-library-label">Books</span>
+            </button>
+            <button class="mobile-nav-tab" id="mob-tab-content" onclick="setMobileTab('content')">
+                <span class="mob-tab-icon">📜</span>
+                <span class="mob-tab-label" id="mob-tab-content-label">Verses</span>
+            </button>
+            <button class="mobile-nav-tab" id="mob-tab-live" onclick="setMobileTab('live')">
+                <span class="mob-tab-icon">📺</span>
+                <span class="mob-tab-label">Live Screen</span>
+                <span class="mob-live-dot"></span>
+            </button>
+        </nav>
+
         <!-- Main Workbench Grid -->
-        <div class="workbench-grid">
+        <div class="workbench-grid" data-mob-tab="library">
             
             <!-- ============================================== -->
             <!-- 1A. SCRIPTURES LEFT SIDEBAR: Books Navigator  -->
@@ -169,6 +186,7 @@
             <main class="center-panel" id="center-bible-panel">
                 <div class="chapter-nav-bar">
                     <div class="chapter-header-row">
+                        <button class="mob-back-btn" onclick="setMobileTab('library')" title="Back to Books list">← Books</button>
                         <div class="chapter-title-group">
                             <span class="chapter-header-title" id="chapter-header-text">Loading...</span>
                             <!-- Chapter Dropdown Selector -->
@@ -206,6 +224,7 @@
             <main class="center-panel" id="center-songs-panel" style="display: none;">
                 <div class="song-nav-bar">
                     <div class="song-header-row">
+                        <button class="mob-back-btn" onclick="setMobileTab('library')" title="Back to Songs list">← Songs</button>
                         <div class="song-header-main">
                             <span class="song-number-badge" id="song-active-number">Song #01</span>
                             <div class="song-titles-wrap">
@@ -343,6 +362,20 @@
                 </div>
             </aside>
 
+        </div>
+
+        <!-- Mobile Sticky Bottom Controller (Visible on screens <= 1024px) -->
+        <div class="mobile-bottom-bar" id="mobile-bottom-bar">
+            <div class="mob-live-info" onclick="setMobileTab('live')" title="Tap to view Audience Screen Mirror">
+                <span class="pulse-dot"></span>
+                <span class="mob-live-badge-text" id="mob-live-badge-text">John 3:16</span>
+            </div>
+            <div class="mob-quick-actions">
+                <button class="mob-btn-action" onclick="navigatePrev()" title="Previous Verse/Stanza">◀</button>
+                <button class="mob-btn-action" onclick="navigateNext()" title="Next Verse/Stanza">▶</button>
+                <button class="mob-btn-action mob-btn-blank" id="mob-blank-btn" onclick="toggleBlank()" title="Blank Screen">⬛</button>
+                <button class="mob-btn-action mob-btn-proj" onclick="openProjectorWindow()" title="Open Projector">📺</button>
+            </div>
         </div>
     </div>
 
