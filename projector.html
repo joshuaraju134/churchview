@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Church Projector Screen - Church of God Alappuzha Town</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="projector-body theme-dark-midnight mode-verse">
+
+    <!-- 1. Pure Blackout Overlay (B key) -->
+    <div id="black-overlay"></div>
+
+    <!-- 2. Authentic Alappuzha Town Default / Holding Screen (W key) -->
+    <div id="default-screen-overlay" class="default-holding-screen">
+        <div class="holding-card">
+            <!-- Accent Top Bar -->
+            <div id="card-accent-bar-top" class="card-accent-bar top-bar"></div>
+
+            <div class="holding-card-inner">
+                <!-- Center Logo Card -->
+                <div class="logo-card-frame">
+                    <img id="holding-emblem-img" src="alappuzha_cog_logo.png" alt="Church of God Kerala State Logo" class="holding-emblem-img">
+                </div>
+
+                <!-- Text Branding -->
+                <div id="holding-title-main" class="holding-title-main">CHURCH OF GOD (FULL GOSPEL) IN INDIA</div>
+                <div id="holding-church-town" class="holding-church-town">ALAPPUZHA TOWN</div>
+                <div id="holding-gold-divider" class="holding-gold-divider"></div>
+
+                <!-- Tagline -->
+                <div id="holding-motto" class="holding-motto">WELCOME • WORSHIP • FELLOWSHIP</div>
+
+                <!-- Scripture Quote -->
+                <div id="holding-verse-quote" class="holding-verse-quote">“Let everything that has breath praise the LORD.” • Psalm 150:6</div>
+            </div>
+
+            <!-- Accent Bottom Bar -->
+            <div id="card-accent-bar-bottom" class="card-accent-bar bottom-bar"></div>
+        </div>
+    </div>
+
+    <!-- 3. Scripture Live Projection Viewport -->
+    <div class="projector-viewport" id="projector-container">
+        <!-- Subtle Background Center Watermark -->
+        <div class="projector-watermark-bg" id="projector-watermark-bg">
+            <img src="alappuzha_emblem_trans.png" alt="Watermark Emblem">
+        </div>
+
+        <!-- Corner Discreet Watermark -->
+        <div class="projector-corner-watermark" id="projector-corner-watermark">
+            <img src="alappuzha_emblem_trans.png" alt="Emblem">
+            <div class="corner-watermark-text">
+                <span class="church-line">COG ALAPPUZHA TOWN</span>
+                <span class="state-line">KERALA STATE</span>
+            </div>
+        </div>
+
+        <!-- Scripture Reference Badge -->
+        <div class="projector-ref-badge" id="projector-ref">
+            യോഹന്നാൻ 3:16  |  John 3:16 (NKJV)
+        </div>
+
+        <!-- Primary: Malayalam BSI -->
+        <div class="projector-text-ml" id="projector-ml">
+            തന്റെ ഏകജാതനായ പുത്രനിൽ വിശ്വസിക്കുന്ന ഏവനും നശിച്ചുപോകാതെ നിത്യജീവൻ പ്രാപിക്കേണ്ടതിന്നു ദൈവം അവനെ നൽകുവാൻ തക്കവണ്ണം ലോകത്തെ സ്നേഹിച്ചു.
+        </div>
+
+        <!-- Secondary: English (NKJV / NIV / KJV) -->
+        <div class="projector-text-en" id="projector-en">
+            For God so loved the world that He gave His only begotten Son, that whoever believes in Him should not perish but have everlasting life.
+        </div>
+    </div>
+
+    <script src="projector.js"></script>
+</body>
+</html>

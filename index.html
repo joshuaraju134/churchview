@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChurchView - Dual Malayalam BSI & NKJV / NIV / KJV & VerseView Songs Projector | Alappuzha Town</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Loading Screen -->
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <div style="font-size: 16px; font-weight: 600; color: #f5b041;" id="loading-text">Loading Scriptures & VerseView Songs...</div>
+        <div style="font-size: 12px; color: #94a3b8;">Church of God (Full Gospel) in India, Alappuzha Town</div>
+    </div>
+
+    <div class="app-container">
+        <!-- Top Application Header -->
+        <header class="app-header">
+            <!-- Church Branding -->
+            <div class="brand-section">
+                <img src="alappuzha_cog_logo.png" alt="Church of God Alappuzha Town Logo" class="church-header-logo">
+                <div class="brand-title-wrap">
+                    <div class="church-main-title">Church of God (Full Gospel) in India</div>
+                    <div class="church-sub-title">Alappuzha Town • Kerala State</div>
+                </div>
+            </div>
+
+            <!-- Main Mode Switcher: Bible vs VerseView Songs -->
+            <div class="nav-mode-switcher">
+                <button id="nav-btn-bible" class="nav-mode-btn active" onclick="switchMainMode('BIBLE')">
+                    <span class="nav-icon">📖</span> SCRIPTURES
+                </button>
+                <button id="nav-btn-songs" class="nav-mode-btn" onclick="switchMainMode('SONGS')">
+                    <span class="nav-icon">🎵</span> SONGS (VerseView)
+                </button>
+            </div>
+
+            <!-- Instant Search Bar -->
+            <div class="search-wrapper">
+                <span class="search-icon" id="search-main-icon">🔍</span>
+                <input type="text" id="search-input" class="search-input" 
+                       placeholder="Quick Jump: Type 'John 3:16', 'റോമ 8:28', 'Gen 1:1'..." 
+                       autocomplete="off">
+                <span class="search-hint">Enter ↵</span>
+            </div>
+
+            <!-- Bible Version Selector (Shown in Scripture Mode) -->
+            <div class="version-selector-container" id="bible-version-selector-wrap">
+                <span class="version-label">English:</span>
+                <select id="english-version-select" class="version-dropdown">
+                    <option value="nkjv" selected>NKJV (New King James)</option>
+                    <option value="niv">NIV (New International)</option>
+                    <option value="kjv">KJV (King James)</option>
+                </select>
+            </div>
+
+            <!-- Display Mode Selector (Dual / Malayalam Only / English Only) -->
+            <div class="display-mode-container">
+                <span class="version-label">Display:</span>
+                <div class="segmented-control" id="screen-layout-control">
+                    <button class="seg-btn active" data-mode="dual" onclick="setScriptureDisplayMode('dual')" title="Show Malayalam + English Dual">Dual</button>
+                    <button class="seg-btn" data-mode="malayalam" onclick="setScriptureDisplayMode('malayalam')" title="Show Malayalam Only">മലയാളം</button>
+                    <button class="seg-btn" data-mode="english" onclick="setScriptureDisplayMode('english')" title="Show English Only">English</button>
+                </div>
+            </div>
+
+            <!-- Header Action Buttons -->
+            <div class="header-actions">
+                <button class="btn btn-default-screen" id="default-screen-btn" onclick="toggleDefaultScreen()" title="Project Alappuzha Town Welcome/Holding Screen (Shortcut: W)">
+                    <span>🖼️</span> DEFAULT (W)
+                </button>
+                <button class="btn btn-blank" id="blank-btn" onclick="toggleBlank()" title="Blackout Projector Screen (Shortcut: B)">
+                    <span class="icon">⬛</span> BLANK (B)
+                </button>
+                <button class="btn btn-primary" onclick="openProjectorWindow()" title="Open Audience Projector Window (Shortcut: O)">
+                    <span>📺</span> OPEN PROJECTOR (O)
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Workbench Grid -->
+        <div class="workbench-grid">
+            
+            <!-- ============================================== -->
+            <!-- 1A. SCRIPTURES LEFT SIDEBAR: Books Navigator  -->
+            <!-- ============================================== -->
+            <aside class="books-sidebar" id="sidebar-bible">
+                <div class="sidebar-top-bar">
+                    <div class="sidebar-heading">Books (പുസ്തകങ്ങൾ)</div>
+                    <span class="sidebar-count-badge" id="books-count-badge">66 Books</span>
+                </div>
+
+                <!-- Books Search Input & Quick Filter Tabs -->
+                <div class="book-search-container">
+                    <div class="search-input-wrap">
+                        <span class="mini-search-icon">🔍</span>
+                        <input type="text" id="book-search-input" class="sidebar-search-input" 
+                               placeholder="Search books (John, റോമ, Gen)..." 
+                               autocomplete="off" oninput="filterBooks(this.value)">
+                        <button id="book-search-clear-btn" class="sidebar-clear-btn" onclick="clearBookSearch()" style="display: none;" title="Clear search">✕</button>
+                    </div>
+                    <div class="filter-pill-group">
+                        <button class="pill-filter-btn active" id="book-tab-all" onclick="setBookFilter('ALL')">All (66)</button>
+                        <button class="pill-filter-btn" id="book-tab-nt" onclick="setBookFilter('NT')">NT (പുതിയ)</button>
+                        <button class="pill-filter-btn" id="book-tab-ot" onclick="setBookFilter('OT')">OT (പഴയ)</button>
+                    </div>
+                </div>
+
+                <!-- Scrollable Books List -->
+                <div class="books-scroll-area" id="books-scroll-area">
+                    <div id="nt-section">
+                        <div class="testament-label">New Testament (പുതിയ നിയമം)</div>
+                        <div id="nt-books-list"></div>
+                    </div>
+
+                    <div id="ot-section">
+                        <div class="testament-label" style="margin-top: 14px;">Old Testament (പഴയ നിയമം)</div>
+                        <div id="ot-books-list"></div>
+                    </div>
+
+                    <div id="books-empty-msg" class="empty-search-msg" style="display: none;">
+                        <span>🔍</span> No matching books found
+                    </div>
+                </div>
+            </aside>
+
+            <!-- ============================================== -->
+            <!-- 1B. SONGS LEFT SIDEBAR: VerseView Songs Library-->
+            <!-- ============================================== -->
+            <aside class="books-sidebar" id="sidebar-songs" style="display: none;">
+                <div class="sidebar-top-bar">
+                    <div class="sidebar-heading">VerseView Songs (ഗാനങ്ങൾ)</div>
+                    <button class="btn-mini-add-song" onclick="openAddSongModal()" title="Add Custom Church Song">+ Add Song</button>
+                </div>
+
+                <!-- Songs Search Input & Filter Tabs -->
+                <div class="song-search-container">
+                    <div class="search-input-wrap">
+                        <span class="mini-search-icon">🔍</span>
+                        <input type="text" id="song-search-input" class="sidebar-search-input" 
+                               placeholder="Search song #, title, or lyrics..." 
+                               autocomplete="off" oninput="filterSongs(this.value)">
+                        <button id="song-search-clear-btn" class="sidebar-clear-btn" onclick="clearSongSearch()" style="display: none;" title="Clear search">✕</button>
+                    </div>
+                    <div class="filter-pill-group">
+                        <button class="pill-filter-btn active" id="song-tab-all" onclick="setSongFilter('ALL')">All Songs</button>
+                        <button class="pill-filter-btn" id="song-tab-ml" onclick="setSongFilter('MALAYALAM')">മലയാളം</button>
+                        <button class="pill-filter-btn" id="song-tab-en" onclick="setSongFilter('ENGLISH')">English</button>
+                    </div>
+                </div>
+
+                <!-- Scrollable Songs List -->
+                <div class="songs-scroll-area" id="songs-scroll-area">
+                    <div id="songs-list-container"></div>
+                    <div id="songs-empty-msg" class="empty-search-msg" style="display: none;">
+                        <span>🔍</span> No matching songs found
+                    </div>
+                </div>
+            </aside>
+
+            <!-- ============================================== -->
+            <!-- 2A. SCRIPTURES CENTER PANEL: Chapter Verses    -->
+            <!-- ============================================== -->
+            <main class="center-panel" id="center-bible-panel">
+                <div class="chapter-nav-bar">
+                    <div class="chapter-header-row">
+                        <div class="chapter-title-group">
+                            <span class="chapter-header-title" id="chapter-header-text">Loading...</span>
+                            <!-- Chapter Dropdown Selector -->
+                            <div class="chapter-dropdown-wrap">
+                                <span style="font-size: 13px; color: #94a3b8; font-weight: 600;">Chapter:</span>
+                                <select id="chapter-select-dropdown" class="chapter-select-box"></select>
+                            </div>
+                        </div>
+                        <div class="keyboard-shortcuts-hint">
+                            Navigate: <kbd>→</kbd> or <kbd>↓</kbd> Next | <kbd>←</kbd> or <kbd>↑</kbd> Prev | <kbd>W</kbd> Default Screen | <kbd>B</kbd> Blank | <kbd>/</kbd> Search
+                        </div>
+                    </div>
+                    <!-- Quick Chapter Pills -->
+                    <div class="chapter-pills-container" id="chapter-pills-bar"></div>
+
+                    <!-- Recent Verses History & Quick Recall Shelf -->
+                    <div class="history-bar-container" id="history-bar-container">
+                        <div class="history-label">
+                            <span>🕒 RECENT:</span>
+                        </div>
+                        <div class="history-chips-scroll" id="history-chips-list">
+                            <span class="history-empty-hint">Projected verses will appear here for 1-click recall</span>
+                        </div>
+                        <button class="btn-clear-history" onclick="clearVerseHistory()" title="Clear Recent History">✕</button>
+                    </div>
+                </div>
+
+                <!-- Complete Scrollable List of All Verses in Chapter -->
+                <div class="verses-scroll-area" id="verses-scroll-container"></div>
+            </main>
+
+            <!-- ============================================== -->
+            <!-- 2B. SONGS CENTER PANEL: Song Stanzas Browser    -->
+            <!-- ============================================== -->
+            <main class="center-panel" id="center-songs-panel" style="display: none;">
+                <div class="song-nav-bar">
+                    <div class="song-header-row">
+                        <div class="song-header-main">
+                            <span class="song-number-badge" id="song-active-number">Song #01</span>
+                            <div class="song-titles-wrap">
+                                <div class="song-active-title-ml" id="song-active-title-ml">ക്രൂശിൻ നിഴലിൽ എനിക്കു</div>
+                                <div class="song-active-title-en" id="song-active-title-en">Krooshin Nizhalil Enikku • Kristheeya Keerthanangal</div>
+                            </div>
+                        </div>
+                        <div class="song-header-actions">
+                            <span class="song-category-tag" id="song-active-category">Cross & Redemption</span>
+                            <button class="btn btn-primary" onclick="projectCurrentSongStanza()" title="Project Current Stanza (Shortcut: Enter)">
+                                <span>🔴</span> PROJECT LIVE
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Quick Stanza Pills (Chorus, Stanza 1, Stanza 2...) -->
+                    <div class="stanzas-pills-bar" id="stanzas-pills-bar"></div>
+                </div>
+
+                <!-- Complete Scrollable List of Stanzas in Song -->
+                <div class="stanzas-scroll-area" id="stanzas-scroll-container"></div>
+            </main>
+
+            <!-- ============================================== -->
+            <!-- 3. RIGHT SIDEBAR: Live Mirror & Controls       -->
+            <!-- ============================================== -->
+            <aside class="preview-sidebar">
+                <div class="preview-header">
+                    <div class="preview-title">Audience Screen Mirror</div>
+                    <div class="live-indicator">
+                        <span class="pulse-dot"></span> LIVE
+                    </div>
+                </div>
+
+                <div class="preview-content-box">
+                    <!-- Miniature 16:9 Live Mirror -->
+                    <div class="preview-screen" id="preview-box">
+                        <!-- Live Mirror Mode (Verses or Songs) -->
+                        <div id="preview-verse-mode" class="preview-mode-wrap">
+                            <div class="preview-watermark-bg" id="preview-watermark-bg">
+                                <img src="alappuzha_emblem_trans.png" alt="Watermark Emblem">
+                            </div>
+                            <div class="preview-screen-ref" id="preview-ref">John 3:16</div>
+                            <div class="preview-screen-ml" id="preview-ml">Loading...</div>
+                            <div class="preview-screen-en" id="preview-en">Loading...</div>
+                            <div class="preview-corner-tag" id="preview-corner-tag">COG ALAPPUZHA TOWN</div>
+                        </div>
+
+                        <!-- Default Screen Mirror Mode (Shown when W is active) -->
+                        <div id="preview-default-mode" class="preview-mode-wrap preview-default-card" style="display: none;">
+                            <div class="mini-accent-bar mini-top" id="mini-accent-bar-top"></div>
+                            <div class="mini-emblem-box">
+                                <img src="alappuzha_cog_logo.png" alt="Emblem Logo" id="mini-emblem-img">
+                            </div>
+                            <div class="mini-title-cog" id="mini-title-cog">CHURCH OF GOD (FULL GOSPEL) IN INDIA</div>
+                            <div class="mini-title-town" id="mini-title-town">ALAPPUZHA TOWN</div>
+                            <div class="mini-divider" id="mini-divider"></div>
+                            <div class="mini-motto" id="mini-motto">WELCOME • WORSHIP • FELLOWSHIP</div>
+                            <div class="mini-verse-quote" id="mini-verse-quote">“Let everything that has breath praise the LORD.” • Ps 150:6</div>
+                            <div class="mini-accent-bar mini-bottom" id="mini-accent-bar-bottom"></div>
+                        </div>
+
+                        <!-- Blank Overlay Mirror -->
+                        <div id="preview-blank-overlay" class="preview-blank-overlay" style="display: none;">
+                            <span>⬛ SCREEN BLACKED OUT (B)</span>
+                        </div>
+                    </div>
+
+                    <!-- Quick Navigation -->
+                    <div class="quick-nav-row">
+                        <button class="btn-nav" onclick="navigatePrev()" title="Previous Verse / Stanza (Left / Up Arrow)">
+                            <span>◀</span> Previous
+                        </button>
+                        <button class="btn-nav" onclick="navigateNext()" title="Next Verse / Stanza (Right / Down Arrow)">
+                            <span>▶</span> Next
+                        </button>
+                    </div>
+
+                    <!-- Projector Customization Settings -->
+                    <div class="settings-group">
+                        <div class="settings-group-title">Display Settings</div>
+
+                        <div class="setting-row">
+                            <span>Screen Layout:</span>
+                            <select id="scripture-layout-select" onchange="setScriptureDisplayMode(this.value)">
+                                <option value="dual" selected>Dual (Malayalam + English)</option>
+                                <option value="malayalam">Malayalam Only</option>
+                                <option value="english">English Only</option>
+                            </select>
+                        </div>
+
+                        <div class="setting-row">
+                            <span>Church Watermark:</span>
+                            <input type="checkbox" id="toggle-watermark-check" checked style="width: 18px; height: 18px; accent-color: var(--primary-gold); cursor: pointer;">
+                        </div>
+                        
+                        <div class="setting-row">
+                            <span>Projector Theme:</span>
+                            <select id="theme-select">
+                                <option value="dark-midnight">Midnight Navy (Recommended)</option>
+                                <option value="pure-black">Pure Black (High Contrast)</option>
+                                <option value="church-blue">Deep Church Blue</option>
+                                <option value="royal-maroon">Royal Velvet</option>
+                            </select>
+                        </div>
+
+                        <div class="setting-row">
+                            <span>Malayalam Size:</span>
+                            <input type="range" id="proj-font-ml" min="30" max="68" value="46">
+                            <span id="val-font-ml" style="min-width: 38px; text-align: right; font-weight: 600;">46px</span>
+                        </div>
+
+                        <div class="setting-row">
+                            <span>English Size:</span>
+                            <input type="range" id="proj-font-en" min="20" max="50" value="30">
+                            <span id="val-font-en" style="min-width: 38px; text-align: right; font-weight: 600;">30px</span>
+                        </div>
+
+                        <!-- Edit Default Screen Button -->
+                        <div class="setting-row" style="margin-top: 10px;">
+                            <button class="btn btn-edit-screen" onclick="openDefaultScreenModal()" style="width: 100%; justify-content: center;">
+                                <span>✏️</span> Edit Default Screen Text & Logo
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quick Operator Guide -->
+                    <div class="settings-group" style="font-size: 12px; color: #94a3b8; line-height: 1.5;">
+                        <div class="settings-group-title">How To Present in Church</div>
+                        <p>1. Click <strong>OPEN PROJECTOR</strong> or press <strong>O</strong>.</p>
+                        <p>2. Drag projector window to church TV/projector, press <strong>F11</strong>.</p>
+                        <p>3. Switch between <strong>📖 Scriptures</strong> and <strong>🎵 Songs</strong> using tabs.</p>
+                        <p>4. Press <strong>↓ / ↑</strong> or click any verse/stanza to project live.</p>
+                        <p>5. Press <strong>W</strong> for Default Screen, <strong>B</strong> for Blank.</p>
+                    </div>
+                </div>
+            </aside>
+
+        </div>
+    </div>
+
+    <!-- Modal: Edit Default Holding Screen -->
+    <div id="default-screen-modal" class="modal-backdrop" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div class="modal-title">✏️ Customize Default / Welcome Screen</div>
+                <button class="modal-close-btn" onclick="closeDefaultScreenModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Denomination / Main Heading:</label>
+                    <input type="text" id="edit-def-org" class="form-control" placeholder="e.g. CHURCH OF GOD (FULL GOSPEL) IN INDIA">
+                </div>
+
+                <div class="form-group">
+                    <label>Church / Town Name (Large Text):</label>
+                    <input type="text" id="edit-def-town" class="form-control" placeholder="e.g. ALAPPUZHA TOWN">
+                </div>
+
+                <div class="form-group">
+                    <label>Tagline / Motto:</label>
+                    <input type="text" id="edit-def-motto" class="form-control" placeholder="e.g. WELCOME • WORSHIP • FELLOWSHIP">
+                </div>
+
+                <div class="form-group">
+                    <label>Scripture Reference / Announcement Subtitle:</label>
+                    <textarea id="edit-def-verse" class="form-control" rows="2" placeholder="e.g. “Let everything that has breath praise the LORD.” • Psalm 150:6"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Accent Color:</label>
+                        <select id="edit-def-color" class="form-control">
+                            <option value="#be185d">Vibrant Magenta (Default)</option>
+                            <option value="#831843">Royal Burgundy / Velvet</option>
+                            <option value="#1d4ed8">Deep Church Blue</option>
+                            <option value="#047857">Emerald Green</option>
+                            <option value="#7e22ce">Royal Purple</option>
+                            <option value="#b45309">Warm Gold / Amber</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Custom Church Logo / Photo:</label>
+                        <input type="file" id="edit-def-logo-file" accept="image/*" class="form-control file-input">
+                        <span id="logo-status-hint" style="font-size: 11px; color: #94a3b8; margin-top: 2px;">Official COG Kerala Emblem</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="resetDefaultScreenConfig()">↺ Reset to Default</button>
+                <button class="btn btn-secondary" onclick="closeDefaultScreenModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveDefaultScreenConfig()">💾 Save & Apply Live</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Add / Import Custom Church Song -->
+    <div id="add-song-modal" class="modal-backdrop" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div class="modal-title">🎵 Add / Import Church Song (ഗാനം ചേർക്കുക)</div>
+                <button class="modal-close-btn" onclick="closeAddSongModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Song Number (#):</label>
+                        <input type="number" id="new-song-num" class="form-control" placeholder="e.g. 51">
+                    </div>
+                    <div class="form-group" style="flex: 2;">
+                        <label>Category / Book:</label>
+                        <input type="text" id="new-song-cat" class="form-control" placeholder="e.g. Kristheeya Keerthanangal / Worship">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Song Title in Malayalam (മലയാളം തലക്കെട്ട്):</label>
+                    <input type="text" id="new-song-title-ml" class="form-control" placeholder="e.g. ദൈവമേ നിന്റെ കൃപയാൽ">
+                </div>
+
+                <div class="form-group">
+                    <label>Song Title in English / Manglish:</label>
+                    <input type="text" id="new-song-title-en" class="form-control" placeholder="e.g. Daivame Ninte Krupayaal">
+                </div>
+
+                <div class="form-group">
+                    <label>Malayalam Lyrics (Stanzas separated by an empty line):</label>
+                    <textarea id="new-song-lyrics-ml" class="form-control" rows="5" placeholder="പല്ലവി:&#10;ദൈവമേ നിന്റെ കൃപയാൽ ഞാൻ...&#10;&#10;ചരണം 1:&#10;എന്റെ യോഗ്യതയല്ല നിൻ കൃപയല്ലോ..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>English / Manglish Transliteration (Optional, separated by empty line):</label>
+                    <textarea id="new-song-lyrics-en" class="form-control" rows="4" placeholder="Pallavi:&#10;Daivame ninte krupayaal njan...&#10;&#10;Stanza 1:&#10;Ente yogyathayalla nin krupayallo..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeAddSongModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveCustomSong()">💾 Save Song to Library</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="presenter.js"></script>
+</body>
+</html>
