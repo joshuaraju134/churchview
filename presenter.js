@@ -25,6 +25,16 @@ let liveStanzaIndex = -1;
 let songSearchQuery = '';
 let songFilterCategory = 'ALL'; // 'ALL' | 'MALAYALAM' | 'ENGLISH'
 
+// Worship Setlist / Service Schedule State
+let songsSidebarTab = 'ALL'; // 'ALL' | 'SETLIST'
+let currentEventName = 'Sunday Morning Worship';
+let serviceEvents = {
+    'Sunday Morning Worship': [],
+    'Sunday Evening Service': [],
+    'Youth Fellowship': [],
+    'Fasting Prayer': []
+};
+
 // Display & Presentation State
 let currentEnglishVersion = 'nkjv'; // 'nkjv' | 'niv' | 'kjv'
 let scriptureLayout = 'dual';        // 'dual' | 'malayalam' | 'english'
@@ -152,6 +162,7 @@ async function init() {
         loadScriptureLayout();
         loadHoldingConfig();
         loadHistory();
+        loadServiceSetlists();
         setupEventListeners();
 
         // Initial launch verse (John 3:16)
@@ -708,11 +719,13 @@ function renderSongList() {
         btn.className = `song-item-btn ${isViewing ? 'active' : ''} ${isLive ? 'live-projecting' : ''}`;
         btn.id = `song-item-${idx}`;
 
+        const isInSetlist = isSongInCurrentSetlist(s.number);
         const songNumStr = `#${s.number}`;
         const stanzaCountStr = s.stanzas ? `${s.stanzas.length} stanzas` : '';
 
         btn.innerHTML = `
             <div class="song-item-left">
+                <button class="btn-song-star ${isInSetlist ? 'starred' : ''}" onclick="event.stopPropagation(); toggleSongInSetlist(${idx});" title="${isInSetlist ? 'Remove from Service Setlist' : 'Add to Service Setlist'}">${isInSetlist ? '⭐' : '☆'}</button>
                 <span class="song-num-badge">${songNumStr}</span>
                 <div class="song-titles-col">
                     <span class="song-item-title-ml">${s.title_ml}</span>
@@ -729,7 +742,7 @@ function renderSongList() {
     container.appendChild(fragment);
 
     if (songCountBadge) {
-        songCountBadge.innerText = `${visibleCount} Songs`;
+        songCountBadge.innerText = `${visibleCount}`;
     }
 
     if (emptyMsg) {
@@ -775,6 +788,8 @@ function selectSong(songIdx) {
     }
 
     renderSongView(songIdx);
+    updateCurrentSongSetlistButton();
+    updateSetlistSequenceBar();
 
     if (window.innerWidth <= 1024) {
         setMobileTab('content');
@@ -909,6 +924,10 @@ function projectSong(songIdx, stanzaIdx) {
     channel.postMessage(payload);
     localStorage.setItem('church_live_state', JSON.stringify(payload));
     updateMobileLiveBar();
+    updateSetlistSequenceBar();
+    if (songsSidebarTab === 'SETLIST') {
+        renderSetlist();
+    }
 }
 
 function projectCurrentSongStanza() {
@@ -1059,6 +1078,330 @@ function saveCustomSong() {
     const newIdx = songsData.length - 1;
     selectSong(newIdx);
     alert(`Song #${num} "${newSong.title_ml}" successfully added to your ChurchView library!`);
+}
+
+/* ========================================================= */
+/* 4. WORSHIP SERVICE SETLIST / PREPLANNED EVENT SCHEDULE   */
+/* ========================================================= */
+function loadServiceSetlists() {
+    try {
+        const savedEvents = localStorage.getItem('church_service_events');
+        if (savedEvents) {
+            serviceEvents = JSON.parse(savedEvents);
+        }
+        const savedCurrent = localStorage.getItem('church_current_event');
+        if (savedCurrent && serviceEvents[savedCurrent]) {
+            currentEventName = savedCurrent;
+        } else {
+            currentEventName = Object.keys(serviceEvents)[0] || 'Sunday Morning Worship';
+        }
+    } catch (e) {
+        console.error('Failed to load service events', e);
+    }
+    updateSetlistEventDropdown();
+    updateSetlistBadge();
+}
+
+function saveServiceSetlists() {
+    try {
+        localStorage.setItem('church_service_events', JSON.stringify(serviceEvents));
+        localStorage.setItem('church_current_event', currentEventName);
+    } catch (e) {
+        console.error('Failed to save service events', e);
+    }
+    updateSetlistBadge();
+}
+
+function updateSetlistBadge() {
+    const list = serviceEvents[currentEventName] || [];
+    const badge = document.getElementById('setlist-count-badge');
+    if (badge) badge.innerText = list.length;
+}
+
+function switchSongsSidebarTab(tab) {
+    songsSidebarTab = tab;
+    const allTabBtn = document.getElementById('tab-all-songs');
+    const setlistTabBtn = document.getElementById('tab-setlist-songs');
+    const allContainer = document.getElementById('songs-all-container');
+    const setlistContainer = document.getElementById('songs-setlist-container');
+
+    if (tab === 'ALL') {
+        if (allTabBtn) allTabBtn.classList.add('active');
+        if (setlistTabBtn) setlistTabBtn.classList.remove('active');
+        if (allContainer) allContainer.style.display = 'flex';
+        if (setlistContainer) setlistContainer.style.display = 'none';
+        renderSongList();
+    } else {
+        if (allTabBtn) allTabBtn.classList.remove('active');
+        if (setlistTabBtn) setlistTabBtn.classList.add('active');
+        if (allContainer) allContainer.style.display = 'none';
+        if (setlistContainer) setlistContainer.style.display = 'flex';
+        renderSetlist();
+    }
+}
+
+function updateSetlistEventDropdown() {
+    const select = document.getElementById('setlist-event-select');
+    if (!select) return;
+    select.innerHTML = '';
+    Object.keys(serviceEvents).forEach(name => {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.innerText = name;
+        if (name === currentEventName) opt.selected = true;
+        select.appendChild(opt);
+    });
+    const newOpt = document.createElement('option');
+    newOpt.value = '__NEW__';
+    newOpt.innerText = '➕ Create New Event...';
+    select.appendChild(newOpt);
+}
+
+function onSetlistEventChange(val) {
+    if (val === '__NEW__') {
+        openCreateEventModal();
+        const select = document.getElementById('setlist-event-select');
+        if (select) select.value = currentEventName;
+        return;
+    }
+    currentEventName = val;
+    saveServiceSetlists();
+    renderSetlist();
+    renderSongList();
+    updateCurrentSongSetlistButton();
+    updateSetlistSequenceBar();
+}
+
+function openCreateEventModal() {
+    const modal = document.getElementById('create-event-modal');
+    const input = document.getElementById('new-event-name-input');
+    if (modal) modal.style.display = 'flex';
+    if (input) {
+        input.value = '';
+        input.focus();
+    }
+}
+
+function closeCreateEventModal() {
+    const modal = document.getElementById('create-event-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+function confirmCreateEvent() {
+    const input = document.getElementById('new-event-name-input');
+    const name = input ? input.value.trim() : '';
+    if (!name) return;
+    if (!serviceEvents[name]) {
+        serviceEvents[name] = [];
+    }
+    currentEventName = name;
+    saveServiceSetlists();
+    updateSetlistEventDropdown();
+    closeCreateEventModal();
+    renderSetlist();
+    renderSongList();
+    updateCurrentSongSetlistButton();
+}
+
+function isSongInCurrentSetlist(songNum) {
+    const list = serviceEvents[currentEventName] || [];
+    return list.includes(songNum);
+}
+
+function toggleSongInSetlist(songIdx) {
+    const song = songsData[songIdx];
+    if (!song) return;
+
+    if (!serviceEvents[currentEventName]) {
+        serviceEvents[currentEventName] = [];
+    }
+
+    const list = serviceEvents[currentEventName];
+    const existingPos = list.indexOf(song.number);
+    if (existingPos !== -1) {
+        list.splice(existingPos, 1);
+    } else {
+        list.push(song.number);
+    }
+
+    saveServiceSetlists();
+    renderSongList();
+    if (songsSidebarTab === 'SETLIST') {
+        renderSetlist();
+    }
+    updateCurrentSongSetlistButton();
+    updateSetlistSequenceBar();
+}
+
+function toggleCurrentSongInSetlist() {
+    toggleSongInSetlist(viewingSongIndex);
+}
+
+function moveSongInSetlist(pos, delta) {
+    const list = serviceEvents[currentEventName] || [];
+    const newPos = pos + delta;
+    if (newPos < 0 || newPos >= list.length) return;
+    const temp = list[pos];
+    list[pos] = list[newPos];
+    list[newPos] = temp;
+    saveServiceSetlists();
+    renderSetlist();
+    updateSetlistSequenceBar();
+}
+
+function removeSongFromSetlist(pos) {
+    const list = serviceEvents[currentEventName] || [];
+    if (pos >= 0 && pos < list.length) {
+        list.splice(pos, 1);
+        saveServiceSetlists();
+        renderSetlist();
+        renderSongList();
+        updateCurrentSongSetlistButton();
+        updateSetlistSequenceBar();
+    }
+}
+
+function clearCurrentSetlist() {
+    if (confirm(`Clear all preplanned songs from "${currentEventName}"?`)) {
+        serviceEvents[currentEventName] = [];
+        saveServiceSetlists();
+        renderSetlist();
+        renderSongList();
+        updateCurrentSongSetlistButton();
+        updateSetlistSequenceBar();
+    }
+}
+
+function renderSetlist() {
+    const container = document.getElementById('setlist-items-container');
+    const emptyMsg = document.getElementById('setlist-empty-msg');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const list = serviceEvents[currentEventName] || [];
+    if (list.length === 0) {
+        if (emptyMsg) emptyMsg.style.display = 'flex';
+        updateSetlistBadge();
+        return;
+    }
+    if (emptyMsg) emptyMsg.style.display = 'none';
+
+    list.forEach((songNum, pos) => {
+        const foundIdx = songsData.findIndex(s => s.number === songNum);
+        if (foundIdx === -1) return;
+        const song = songsData[foundIdx];
+
+        const isViewing = (foundIdx === viewingSongIndex);
+        const isLive = (foundIdx === liveSongIndex);
+
+        const card = document.createElement('div');
+        card.className = `setlist-item-card ${isViewing ? 'active' : ''} ${isLive ? 'live-projecting' : ''}`;
+        card.innerHTML = `
+            <div class="setlist-step-num">${pos + 1}</div>
+            <div class="setlist-item-titles">
+                <div class="setlist-item-ml">#${song.number}: ${song.title_ml}</div>
+                <div class="setlist-item-en">${song.title_en}</div>
+            </div>
+            <div class="setlist-item-actions">
+                ${pos > 0 ? `<button class="btn-setlist-arrow" onclick="event.stopPropagation(); moveSongInSetlist(${pos}, -1);" title="Move Up">▲</button>` : ''}
+                ${pos < list.length - 1 ? `<button class="btn-setlist-arrow" onclick="event.stopPropagation(); moveSongInSetlist(${pos}, 1);" title="Move Down">▼</button>` : ''}
+                <button class="btn-setlist-remove" onclick="event.stopPropagation(); removeSongFromSetlist(${pos});" title="Remove from Setlist">✕</button>
+            </div>
+        `;
+        card.onclick = () => {
+            selectSong(foundIdx);
+            projectSong(foundIdx, 0);
+        };
+        container.appendChild(card);
+    });
+
+    updateSetlistBadge();
+}
+
+function updateCurrentSongSetlistButton() {
+    const btn = document.getElementById('btn-toggle-current-setlist');
+    const starIcon = document.getElementById('star-icon');
+    const starText = document.getElementById('star-text');
+    if (!btn) return;
+
+    const currentSong = songsData[viewingSongIndex];
+    if (!currentSong) return;
+
+    const inList = isSongInCurrentSetlist(currentSong.number);
+    btn.classList.toggle('starred', inList);
+    if (starIcon) starIcon.innerText = inList ? '⭐' : '☆';
+    if (starText) starText.innerText = inList ? 'In Service' : 'Add to Service';
+}
+
+function updateSetlistSequenceBar() {
+    const bar = document.getElementById('setlist-sequence-bar');
+    const label = document.getElementById('setlist-seq-label');
+    const prevBtn = document.getElementById('btn-seq-prev');
+    const nextBtn = document.getElementById('btn-seq-next');
+    if (!bar) return;
+
+    const currentSong = songsData[viewingSongIndex];
+    if (!currentSong) {
+        bar.style.display = 'none';
+        return;
+    }
+
+    const list = serviceEvents[currentEventName] || [];
+    const pos = list.indexOf(currentSong.number);
+
+    if (pos === -1 || list.length <= 1) {
+        bar.style.display = 'none';
+        return;
+    }
+
+    bar.style.display = 'flex';
+    if (label) {
+        label.innerHTML = `<span>⭐</span> ${currentEventName}: <strong>Song ${pos + 1} of ${list.length}</strong>`;
+    }
+
+    if (prevBtn) {
+        prevBtn.style.display = (pos > 0) ? 'inline-flex' : 'none';
+    }
+    if (nextBtn) {
+        if (pos < list.length - 1) {
+            const nextSongNum = list[pos + 1];
+            const nextSong = songsData.find(s => s.number === nextSongNum);
+            nextBtn.innerHTML = `Next: #${nextSongNum} ${nextSong ? nextSong.title_ml : ''} ⏭️`;
+            nextBtn.style.display = 'inline-flex';
+        } else {
+            nextBtn.style.display = 'none';
+        }
+    }
+}
+
+function navigateSetlistNext() {
+    const currentSong = songsData[viewingSongIndex];
+    if (!currentSong) return;
+    const list = serviceEvents[currentEventName] || [];
+    const pos = list.indexOf(currentSong.number);
+    if (pos !== -1 && pos < list.length - 1) {
+        const nextSongNum = list[pos + 1];
+        const nextIdx = songsData.findIndex(s => s.number === nextSongNum);
+        if (nextIdx !== -1) {
+            selectSong(nextIdx);
+            projectSong(nextIdx, 0);
+        }
+    }
+}
+
+function navigateSetlistPrev() {
+    const currentSong = songsData[viewingSongIndex];
+    if (!currentSong) return;
+    const list = serviceEvents[currentEventName] || [];
+    const pos = list.indexOf(currentSong.number);
+    if (pos > 0) {
+        const prevSongNum = list[pos - 1];
+        const prevIdx = songsData.findIndex(s => s.number === prevSongNum);
+        if (prevIdx !== -1) {
+            selectSong(prevIdx);
+            projectSong(prevIdx, 0);
+        }
+    }
 }
 
 /* ========================================================= */

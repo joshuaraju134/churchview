@@ -150,38 +150,80 @@
             </aside>
 
             <!-- ============================================== -->
-            <!-- 1B. SONGS LEFT SIDEBAR: VerseView Songs Library-->
+            <!-- 1B. SONGS LEFT SIDEBAR: VerseView Songs & Setlists -->
             <!-- ============================================== -->
             <aside class="books-sidebar" id="sidebar-songs" style="display: none;">
                 <div class="sidebar-top-bar">
-                    <div class="sidebar-heading">VerseView Songs (ഗാനങ്ങൾ)</div>
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span class="sidebar-count-badge" id="songs-count-badge">1054 Songs</span>
-                        <button class="btn-mini-add-song" onclick="openAddSongModal()" title="Add Custom Church Song">+ Add</button>
+                    <div class="sidebar-heading">Worship Songs (ഗാനങ്ങൾ)</div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <button class="btn-mini-add-song" onclick="openAddSongModal()" title="Add Custom Church Song">+ Add Song</button>
                     </div>
                 </div>
 
-                <!-- Songs Search Input & Filter Tabs -->
-                <div class="song-search-container">
-                    <div class="search-input-wrap">
-                        <span class="mini-search-icon">🔍</span>
-                        <input type="text" id="song-search-input" class="sidebar-search-input" 
-                               placeholder="Search song #, title, or lyrics..." 
-                               autocomplete="off" oninput="filterSongs(this.value)">
-                        <button id="song-search-clear-btn" class="sidebar-clear-btn" onclick="clearSongSearch()" style="display: none;" title="Clear search">✕</button>
+                <!-- Sleek Tab Switcher: All Songs vs Service Setlist -->
+                <div class="sidebar-mode-toggle-bar">
+                    <button class="sidebar-mode-btn active" id="tab-all-songs" onclick="switchSongsSidebarTab('ALL')">
+                        <span>📚</span> All Songs (<span id="songs-count-badge">1054</span>)
+                    </button>
+                    <button class="sidebar-mode-btn" id="tab-setlist-songs" onclick="switchSongsSidebarTab('SETLIST')">
+                        <span>⭐</span> Service Setlist <span class="setlist-badge" id="setlist-count-badge">0</span>
+                    </button>
+                </div>
+
+                <!-- VIEW 1: All Songs Library -->
+                <div id="songs-all-container" style="display: flex; flex-direction: column; flex: 1; overflow: hidden;">
+                    <!-- Songs Search Input & Filter Tabs -->
+                    <div class="song-search-container">
+                        <div class="search-input-wrap">
+                            <span class="mini-search-icon">🔍</span>
+                            <input type="text" id="song-search-input" class="sidebar-search-input" 
+                                   placeholder="Search song #, title, or lyrics..." 
+                                   autocomplete="off" oninput="filterSongs(this.value)">
+                            <button id="song-search-clear-btn" class="sidebar-clear-btn" onclick="clearSongSearch()" style="display: none;" title="Clear search">✕</button>
+                        </div>
+                        <div class="filter-pill-group">
+                            <button class="pill-filter-btn active" id="song-tab-all" onclick="setSongFilter('ALL')">All</button>
+                            <button class="pill-filter-btn" id="song-tab-ml" onclick="setSongFilter('MALAYALAM')">മലയാളം</button>
+                            <button class="pill-filter-btn" id="song-tab-en" onclick="setSongFilter('ENGLISH')">English</button>
+                        </div>
                     </div>
-                    <div class="filter-pill-group">
-                        <button class="pill-filter-btn active" id="song-tab-all" onclick="setSongFilter('ALL')">All Songs</button>
-                        <button class="pill-filter-btn" id="song-tab-ml" onclick="setSongFilter('MALAYALAM')">മലയാളം</button>
-                        <button class="pill-filter-btn" id="song-tab-en" onclick="setSongFilter('ENGLISH')">English</button>
+
+                    <!-- Scrollable Songs List -->
+                    <div class="songs-scroll-area" id="songs-scroll-area">
+                        <div id="songs-list-container"></div>
+                        <div id="songs-empty-msg" class="empty-search-msg" style="display: none;">
+                            <span>🔍</span> No matching songs found
+                        </div>
                     </div>
                 </div>
 
-                <!-- Scrollable Songs List -->
-                <div class="songs-scroll-area" id="songs-scroll-area">
-                    <div id="songs-list-container"></div>
-                    <div id="songs-empty-msg" class="empty-search-msg" style="display: none;">
-                        <span>🔍</span> No matching songs found
+                <!-- VIEW 2: Worship Service Setlist / Preplanned Songs -->
+                <div id="songs-setlist-container" style="display: none; flex-direction: column; flex: 1; overflow: hidden;">
+                    <div class="setlist-event-bar">
+                        <div class="setlist-event-select-wrap">
+                            <label class="setlist-event-label">Event / Service:</label>
+                            <select id="setlist-event-select" class="setlist-event-select" onchange="onSetlistEventChange(this.value)">
+                                <option value="Sunday Morning Worship">Sunday Morning Worship</option>
+                                <option value="Sunday Evening Service">Sunday Evening Service</option>
+                                <option value="Youth Fellowship">Youth Fellowship</option>
+                                <option value="Fasting Prayer">Fasting Prayer</option>
+                                <option value="__NEW__">➕ Create New Event...</option>
+                            </select>
+                        </div>
+                        <div class="setlist-bar-actions">
+                            <button class="btn-clear-setlist" onclick="clearCurrentSetlist()" title="Clear this setlist">Clear</button>
+                        </div>
+                    </div>
+
+                    <div class="setlist-scroll-area" id="setlist-scroll-area">
+                        <div id="setlist-items-container"></div>
+                        <div id="setlist-empty-msg" class="empty-search-msg" style="display: none;">
+                            <span style="font-size: 24px;">⭐</span>
+                            <div style="font-weight: 700; color: #cbd5e1; margin-top: 4px;">No songs in this setlist yet</div>
+                            <div style="font-size: 11.5px; color: #64748b; text-align: center; max-width: 200px; margin-top: 4px;">
+                                Click the <span style="color: var(--primary-gold);">☆</span> on any song in "All Songs" to add it for Sunday service!
+                            </div>
+                        </div>
                     </div>
                 </div>
             </aside>
@@ -235,10 +277,21 @@
                             </div>
                         </div>
                         <div class="song-header-actions">
+                            <button class="btn btn-secondary btn-setlist-star" id="btn-toggle-current-setlist" onclick="toggleCurrentSongInSetlist()" title="Add or remove from preplanned worship setlist">
+                                <span id="star-icon">☆</span> <span id="star-text">Add to Service</span>
+                            </button>
                             <span class="song-category-tag" id="song-active-category">Cross & Redemption</span>
                             <button class="btn btn-primary" onclick="projectCurrentSongStanza()" title="Project Current Stanza (Shortcut: Enter)">
                                 <span>🔴</span> PROJECT LIVE
                             </button>
+                        </div>
+                    </div>
+                    <!-- Preplanned Setlist Sequence Bar (Shows if current song is in setlist) -->
+                    <div id="setlist-sequence-bar" class="setlist-sequence-bar" style="display: none;">
+                        <span class="setlist-seq-label" id="setlist-seq-label">Service Order: Song 1 of 4</span>
+                        <div class="setlist-seq-buttons">
+                            <button class="btn-seq-nav" id="btn-seq-prev" onclick="navigateSetlistPrev()" title="Previous Song in Setlist">⏮️ Prev Song</button>
+                            <button class="btn-seq-nav btn-seq-next-primary" id="btn-seq-next" onclick="navigateSetlistNext()" title="Next Song in Setlist">Next Song in Service ⏭️</button>
                         </div>
                     </div>
                     <!-- Quick Stanza Pills (Chorus, Stanza 1, Stanza 2...) -->
@@ -530,6 +583,26 @@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-primary" onclick="closeHelpModal()">Got It</button>
+            </div>
+        </div>
+    <!-- Modal: Create New Worship Event / Service -->
+    <div id="create-event-modal" class="modal-backdrop" style="display: none;">
+        <div class="modal-dialog" style="max-width: 440px;">
+            <div class="modal-header">
+                <div class="modal-title">✨ Create Worship Event / Service</div>
+                <button class="modal-close-btn" onclick="closeCreateEventModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Event or Service Name (ആരാധന പേര്):</label>
+                    <input type="text" id="new-event-name-input" class="form-control" 
+                           placeholder="e.g. Sunday Morning Worship, Cottage Prayer" 
+                           autocomplete="off">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeCreateEventModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="confirmCreateEvent()">Create Event</button>
             </div>
         </div>
     </div>
