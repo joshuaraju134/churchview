@@ -253,14 +253,36 @@ function setMobileTab(tab) {
 
 function updateMobileLiveBar() {
     const badge = document.getElementById('mob-live-badge-text');
-    if (!badge) return;
+    const dockText = document.getElementById('dock-live-text');
+    let label = '';
     if (liveSongIndex !== -1) {
         const song = songsData[liveSongIndex];
         const stanza = (song && song.stanzas) ? song.stanzas[liveStanzaIndex] : null;
-        badge.innerText = `Song #${song ? song.number : ''}: ${stanza ? stanza.label : 'Stanza'}`;
+        label = `Song #${song ? song.number : ''}: ${stanza ? stanza.label : 'Stanza'}`;
     } else {
         const book = bibleData[liveBookIndex];
-        badge.innerText = `${book ? book.name_en : ''} ${liveChapter}:${liveVerse}`;
+        label = `${book ? book.name_en : ''} ${liveChapter}:${liveVerse}`;
+    }
+    if (badge) badge.innerText = label;
+    if (dockText) dockText.innerText = label;
+}
+
+function toggleSidebar() {
+    const grid = document.querySelector('.workbench-grid');
+    if (grid) {
+        grid.classList.toggle('sidebar-collapsed');
+    }
+}
+
+function toggleFloatingPreview() {
+    const card = document.getElementById('floating-preview-card');
+    const previewBtn = document.getElementById('dock-btn-preview');
+    if (card) {
+        const isHidden = (card.style.display === 'none' || getComputedStyle(card).display === 'none');
+        card.style.display = isHidden ? 'block' : 'none';
+        if (previewBtn) {
+            previewBtn.classList.toggle('active', isHidden);
+        }
     }
 }
 
@@ -1536,6 +1558,29 @@ function updateDisplayModeUI() {
         mobBlank.innerText = (displayMode === 'BLACK') ? '☀️' : '⬛';
     }
 
+    const dockDefBtn = document.getElementById('dock-btn-holding');
+    if (dockDefBtn) {
+        dockDefBtn.classList.toggle('active', displayMode === 'DEFAULT');
+    }
+    const dockBlankBtn = document.getElementById('dock-btn-blackout');
+    if (dockBlankBtn) {
+        dockBlankBtn.classList.toggle('blank-active', displayMode === 'BLACK');
+        dockBlankBtn.innerHTML = (displayMode === 'BLACK') ? `<span>☀️</span> Unblank` : `<span class="icon">⬛</span> Blackout`;
+    }
+    const dockStatusTag = document.getElementById('dock-status-tag');
+    if (dockStatusTag) {
+        if (displayMode === 'BLACK') {
+            dockStatusTag.innerText = 'BLACKOUT';
+            dockStatusTag.style.color = '#ef4444';
+        } else if (displayMode === 'DEFAULT') {
+            dockStatusTag.innerText = 'HOLDING';
+            dockStatusTag.style.color = '#b45309';
+        } else {
+            dockStatusTag.innerText = 'LIVE';
+            dockStatusTag.style.color = '#2563eb';
+        }
+    }
+
     if (previewVerseMode && previewDefaultMode && previewBlankOverlay) {
         if (displayMode === 'DEFAULT') {
             previewVerseMode.style.display = 'none';
@@ -1667,6 +1712,15 @@ function setupEventListeners() {
                 // Toggle between Bible and Songs
                 e.preventDefault();
                 switchMainMode(currentMainMode === 'BIBLE' ? 'SONGS' : 'BIBLE');
+                break;
+            case 'p':
+            case 'P':
+                e.preventDefault();
+                toggleFloatingPreview();
+                break;
+            case '[':
+                e.preventDefault();
+                toggleSidebar();
                 break;
         }
     });

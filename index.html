@@ -20,6 +20,7 @@
         <header class="app-header">
             <!-- Church Branding -->
             <div class="brand-section">
+                <button class="btn-sidebar-toggle" onclick="toggleSidebar()" title="Toggle Library Sidebar (Ctrl+B)">☰</button>
                 <img src="alappuzha_cog_logo.png" alt="Church of God Alappuzha Town Logo" class="church-header-logo">
                 <div class="brand-title-wrap">
                     <div class="church-main-title">ChurchView</div>
@@ -305,90 +306,87 @@
             <!-- ============================================== -->
             <!-- 3. RIGHT SIDEBAR: Live Mirror & Controls       -->
             <!-- ============================================== -->
-            <aside class="preview-sidebar">
-                <div class="preview-header">
-                    <div class="preview-title">Audience Screen Mirror</div>
-                    <div class="live-indicator">
-                        <span class="pulse-dot"></span> LIVE
+        </div>
+
+        <!-- ============================================== -->
+        <!-- 3. FLOATING LIVE DOCK & PREVIEW POPOVER        -->
+        <!-- ============================================== -->
+        <div class="floating-live-dock" id="floating-live-dock">
+            <div class="dock-live-status" id="dock-live-status" onclick="toggleFloatingPreview()" title="Click to preview what audience sees">
+                <span class="dock-pulse-dot" id="dock-pulse-dot"></span>
+                <span class="dock-status-tag" id="dock-status-tag">LIVE</span>
+                <span class="dock-live-text" id="dock-live-text">John 3:16</span>
+            </div>
+
+            <div class="dock-divider"></div>
+
+            <div class="dock-actions">
+                <button class="dock-btn" onclick="navigatePrev()" title="Previous Verse / Song Stanza (Left or Up Arrow)">
+                    <span>◀</span>
+                </button>
+                <button class="dock-btn" onclick="navigateNext()" title="Next Verse / Song Stanza (Right or Down Arrow)">
+                    <span>▶</span>
+                </button>
+                <button class="dock-btn dock-btn-holding" id="dock-btn-holding" onclick="toggleDefaultScreen()" title="Holding / Welcome Screen (Shortcut: W)">
+                    <span>🖼️</span> Holding
+                </button>
+                <button class="dock-btn dock-btn-blackout" id="dock-btn-blackout" onclick="toggleBlank()" title="Blackout Screen (Shortcut: B)">
+                    <span class="icon">⬛</span> Blackout
+                </button>
+                <button class="dock-btn dock-btn-proj" onclick="openProjectorWindow()" title="Open Projector Display Window (Shortcut: O / F11)">
+                    <span>📺</span> Projector
+                </button>
+                <button class="dock-btn" id="dock-btn-preview" onclick="toggleFloatingPreview()" title="Toggle Mini Audience Preview Popover">
+                    <span>👁️</span> Preview
+                </button>
+                <button class="dock-btn" onclick="openProjectorSettingsModal()" title="Projector & Font Settings">
+                    <span>⚙️</span>
+                </button>
+                <button class="dock-btn" onclick="openHelpModal()" title="Keyboard Shortcuts & Operator Guide">
+                    <span>⌨️</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Floating Mini Audience Screen Preview Popover -->
+        <div class="floating-preview-card" id="floating-preview-card" style="display: none;">
+            <div class="floating-preview-header">
+                <div class="floating-preview-title">
+                    <span class="dock-pulse-dot"></span> Audience Mirror
+                </div>
+                <button class="floating-preview-close" onclick="toggleFloatingPreview()">&times;</button>
+            </div>
+            <div class="preview-screen" id="preview-box">
+                <!-- Live Mirror Mode (Verses or Songs) -->
+                <div id="preview-verse-mode" class="preview-mode-wrap">
+                    <div class="preview-watermark-bg" id="preview-watermark-bg">
+                        <img src="alappuzha_emblem_trans.png" alt="Watermark Emblem">
                     </div>
+                    <div class="preview-screen-ref" id="preview-ref">John 3:16</div>
+                    <div class="preview-screen-ml" id="preview-ml">Loading...</div>
+                    <div class="preview-screen-en" id="preview-en">Loading...</div>
+                    <div class="preview-corner-tag" id="preview-corner-tag">COG ALAPPUZHA TOWN</div>
                 </div>
 
-                <div class="preview-content-box">
-                    <!-- Miniature 16:9 Live Mirror -->
-                    <div class="preview-screen" id="preview-box">
-                        <!-- Live Mirror Mode (Verses or Songs) -->
-                        <div id="preview-verse-mode" class="preview-mode-wrap">
-                            <div class="preview-watermark-bg" id="preview-watermark-bg">
-                                <img src="alappuzha_emblem_trans.png" alt="Watermark Emblem">
-                            </div>
-                            <div class="preview-screen-ref" id="preview-ref">John 3:16</div>
-                            <div class="preview-screen-ml" id="preview-ml">Loading...</div>
-                            <div class="preview-screen-en" id="preview-en">Loading...</div>
-                            <div class="preview-corner-tag" id="preview-corner-tag">COG ALAPPUZHA TOWN</div>
-                        </div>
-
-                        <!-- Default Screen Mirror Mode (Shown when W is active) -->
-                        <div id="preview-default-mode" class="preview-mode-wrap preview-default-card" style="display: none;">
-                            <div class="mini-accent-bar mini-top" id="mini-accent-bar-top"></div>
-                            <div class="mini-emblem-box">
-                                <img src="alappuzha_cog_logo.png" alt="Emblem Logo" id="mini-emblem-img">
-                            </div>
-                            <div class="mini-title-cog" id="mini-title-cog">CHURCH OF GOD (FULL GOSPEL) IN INDIA</div>
-                            <div class="mini-title-town" id="mini-title-town">ALAPPUZHA TOWN</div>
-                            <div class="mini-divider" id="mini-divider"></div>
-                            <div class="mini-motto" id="mini-motto">WELCOME • WORSHIP • FELLOWSHIP</div>
-                            <div class="mini-verse-quote" id="mini-verse-quote">“Let everything that has breath praise the LORD.” • Ps 150:6</div>
-                            <div class="mini-accent-bar mini-bottom" id="mini-accent-bar-bottom"></div>
-                        </div>
-
-                        <!-- Blank Overlay Mirror -->
-                        <div id="preview-blank-overlay" class="preview-blank-overlay" style="display: none;">
-                            <span>⬛ SCREEN BLACKED OUT (B)</span>
-                        </div>
+                <!-- Default Screen Mirror Mode (Shown when W is active) -->
+                <div id="preview-default-mode" class="preview-mode-wrap preview-default-card" style="display: none;">
+                    <div class="mini-accent-bar mini-top" id="mini-accent-bar-top"></div>
+                    <div class="mini-emblem-box">
+                        <img src="alappuzha_cog_logo.png" alt="Emblem Logo" id="mini-emblem-img">
                     </div>
-
-                    <!-- Quick Navigation -->
-                    <div class="quick-nav-row">
-                        <button class="btn-nav" onclick="navigatePrev()" title="Previous Verse / Stanza (Left / Up Arrow)">
-                            <span>◀</span> Previous
-                        </button>
-                        <button class="btn-nav" onclick="navigateNext()" title="Next Verse / Stanza (Right / Down Arrow)">
-                            <span>▶</span> Next
-                        </button>
-                    </div>
-
-                    <!-- Quick Projection Layout & Actions -->
-                    <div class="sidebar-action-card">
-                        <div class="sidebar-card-title">Projector Layout</div>
-                        <div class="segmented-control full-width" id="side-screen-layout-control">
-                            <button class="seg-btn active" data-mode="dual" onclick="setScriptureDisplayMode('dual')">Dual</button>
-                            <button class="seg-btn" data-mode="malayalam" onclick="setScriptureDisplayMode('malayalam')">മലയാളം</button>
-                            <button class="seg-btn" data-mode="english" onclick="setScriptureDisplayMode('english')">English</button>
-                        </div>
-                    </div>
-
-                    <!-- Quick Screen Blackout & Holding Toggles -->
-                    <div class="sidebar-screen-toggles">
-                        <button class="btn-side-toggle" id="side-default-btn" onclick="toggleDefaultScreen()" title="Holding / Welcome Screen (Shortcut: W)">
-                            <span>🖼️</span> Holding Screen (W)
-                        </button>
-                        <button class="btn-side-toggle" id="side-blank-btn" onclick="toggleBlank()" title="Blackout Projector Screen (Shortcut: B)">
-                            <span class="icon">⬛</span> Blackout (B)
-                        </button>
-                    </div>
-
-                    <!-- Clean Settings & Shortcuts Triggers -->
-                    <div class="sidebar-bottom-links">
-                        <button class="btn-side-link" onclick="openProjectorSettingsModal()">
-                            <span>⚙️</span> Projector & Font Settings
-                        </button>
-                        <button class="btn-side-link" onclick="openHelpModal()">
-                            <span>⌨️</span> Keyboard Shortcuts & Tips
-                        </button>
-                    </div>
+                    <div class="mini-title-cog" id="mini-title-cog">CHURCH OF GOD (FULL GOSPEL) IN INDIA</div>
+                    <div class="mini-title-town" id="mini-title-town">ALAPPUZHA TOWN</div>
+                    <div class="mini-divider" id="mini-divider"></div>
+                    <div class="mini-motto" id="mini-motto">WELCOME • WORSHIP • FELLOWSHIP</div>
+                    <div class="mini-verse-quote" id="mini-verse-quote">“Let everything that has breath praise the LORD.” • Ps 150:6</div>
+                    <div class="mini-accent-bar mini-bottom" id="mini-accent-bar-bottom"></div>
                 </div>
-            </aside>
 
+                <!-- Blank Overlay Mirror -->
+                <div id="preview-blank-overlay" class="preview-blank-overlay" style="display: none;">
+                    <span>⬛ SCREEN BLACKED OUT (B)</span>
+                </div>
+            </div>
         </div>
 
         <!-- Mobile Sticky Bottom Controller (Visible on screens <= 1024px) -->
