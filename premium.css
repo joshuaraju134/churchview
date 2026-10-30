@@ -1,0 +1,201 @@
+/* Presenter-only visual theme. The audience display keeps its own styles. */
+:root {
+    --bg-dark: #f5f3ee;
+    --bg-surface: #fffefa;
+    --bg-card: #fffefa;
+    --bg-card-hover: #f3f0e8;
+    --primary-gold: #9b762d;
+    --primary-blue: #233f44;
+    --primary-blue-glow: rgb(35 63 68 / 12%);
+    --text-primary: #202c31;
+    --text-secondary: #596565;
+    --text-muted: #78817d;
+    --border-color: #e3e2d9;
+    --ink: #172c35;
+    --gold: #dfc58b;
+}
+body { font-family: 'Inter', 'Segoe UI', sans-serif; }
+button, input, select { font-family: inherit; }
+button { transition: background .16s ease, border-color .16s ease, box-shadow .16s ease; }
+button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focus-visible {
+    outline: 3px solid #b48a40;
+    outline-offset: 3px;
+}
+::selection { background: #e9dbb9; color: #172c35; }
+::-webkit-scrollbar { width: 6px; height: 5px; }
+::-webkit-scrollbar-thumb { background: #c9cec7; border-radius: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+#loading-overlay { background: #f5f3ee; }
+#loading-text { color: #233f44 !important; }
+.app-header {
+    height: 82px; padding: 0 24px; gap: 18px;
+    background: #fffefa; box-shadow: none; border-bottom-color: #dedfd6;
+}
+.brand-section { width: 268px; gap: 12px; }
+.church-header-logo { width: 40px; height: 40px; object-fit: contain; }
+.church-main-title { font-family: 'Outfit', 'Segoe UI', sans-serif; font-size: 24px; font-weight: 600; letter-spacing: -.8px; color: var(--ink); }
+.church-sub-title { font-size: 8px; letter-spacing: 1px; color: #778178; font-weight: 600; margin-top: 4px; }
+.btn-sidebar-toggle { background: transparent; border: 0; color: #6d7877; width: 24px; }
+.nav-mode-switcher { padding: 4px; background: #eeeee7; border: 0; border-radius: 10px; }
+.nav-mode-btn { font-size: 12px; border-radius: 7px; padding: 10px 14px; color: #69746f; }
+.nav-mode-btn.active { background: #fffefa; color: #203a3d; box-shadow: 0 2px 5px #182c3510; }
+.nav-icon { font-size: 14px; filter: grayscale(1); }
+.search-wrapper { min-width: 130px; max-width: 360px; }
+.search-input { background: #f6f5f0; border-color: #e6e5dc; height: 40px; border-radius: 9px; font-size: 12px; }
+.search-input:focus { border-color: #9b895e; box-shadow: 0 0 0 3px #b48a4017; }
+.search-icon { filter: grayscale(1); }
+.search-hint { border: 1px solid #dedfd6; border-radius: 4px; padding: 1px 4px; color: #7c8279; }
+.header-actions { gap: 8px; }
+.header-pill-wrap, .segmented-control { background: #f3f2ec; border-color: #e4e3d8; border-radius: 8px; }
+.seg-btn.active { background: #fffefa; color: #233f44; box-shadow: 0 1px 4px #182c3510; }
+.header-clean-select { color: #344742; }
+.btn-header-action { border-radius: 8px; height: 36px; font-size: 11px; }
+.btn-primary { background: #233f44; border-color: #233f44; box-shadow: 0 2px 3px #172c3510; }
+.btn-primary:hover { background: #172f35; border-color: #172f35; }
+.btn-default-screen { background: #f6f1e4; border-color: #e5d8b7; color: #886826; }
+.btn-blank { background: #f1f2ef; border-color: #dde0d9; color: #56615d; }
+.workbench-grid { grid-template-columns: 292px minmax(0,1fr); height: calc(100vh - 82px); }
+.books-sidebar { background: var(--ink); border-right: none; }
+.sidebar-top-bar { height: 64px; padding: 20px 20px 14px; background: transparent; border-color: #ffffff12; }
+.sidebar-heading { color: #d6dfd9; font-size: 10px; letter-spacing: 1.5px; }
+.sidebar-count-badge { background: #ffffff0b; border-color: #ffffff1a; color: #c0cdc6; font-size: 10px; }
+.book-search-container, .song-search-container { padding: 16px; background: transparent; border-color: #ffffff12; gap: 12px; }
+.sidebar-search-input { background: #ffffff08; border-color: #ffffff20; color: #f5f3ee; box-shadow: none; border-radius: 8px; height: 38px; }
+.sidebar-search-input::placeholder { color: #9eafad; font-size: 11px; }
+.sidebar-search-input:focus { border-color: #dfc58b; box-shadow: 0 0 0 2px #dfc58b15; }
+.mini-search-icon { filter: grayscale(1); opacity: .7; }
+.filter-pill-group { background: #0c2028; padding: 4px; border-radius: 8px; }
+.pill-filter-btn { color: #a7b5af; height: 30px; border-radius: 5px; font-size: 10px; }
+.pill-filter-btn:hover { color: #fffefa; }
+.pill-filter-btn.active, .song-search-container .pill-filter-btn.active { background: #334953; color: #f0dfb3; box-shadow: none; }
+.books-scroll-area { background: transparent; padding: 8px 12px 28px; }
+.testament-label { color: #8a9f9f; font-size: 9px; letter-spacing: 1.2px; padding: 18px 8px 10px; }
+.book-btn { border-radius: 9px; padding: 10px 9px; margin-bottom: 4px; color: #dce3db; }
+.book-btn:hover { background: #ffffff08; border-color: #ffffff0a; }
+.book-name-ml { color: #e2e9e1; font-size: 16px; }
+.book-name-en { color: #98aeac; font-size: 11px; margin-top: 2px; }
+.book-order-pill { background: #ffffff06; border-color: #ffffff12; color: #8fa5a3; border-radius: 6px; width: 28px; height: 29px; }
+.book-ch-pill { color: #8da5a3; border-color: #ffffff0e; background: transparent; }
+.book-btn.active { background: #dfc58b; border-color: #dfc58b; box-shadow: 0 3px 10px #00000012; }
+.book-btn.active .book-name-ml { color: #182f36; }
+.book-btn.active .book-name-en { color: #495745; }
+.book-btn.active .book-order-pill { color: #213937; background: #ffffff35; border-color: #7e683523; }
+.book-btn.active .book-ch-pill { color: #4d563f; background: #ffffff25; border-color: #7e683523; }
+.center-panel { min-width: 0; background: #f5f3ee; }
+.studio-intro { padding: 28px 34px 25px; display: flex; align-items: center; justify-content: space-between; gap: 24px; background: #f5f3ee; flex-shrink: 0; }
+.studio-eyebrow { color: #8b7851; font-size: 9px; font-weight: 700; letter-spacing: 2.2px; }
+.studio-intro h1 { font-family: Georgia, 'Times New Roman', serif; font-size: clamp(23px, 2.2vw, 34px); font-weight: 400; color: #233a3e; letter-spacing: -.8px; margin: 9px 0 8px; }
+.studio-intro p { font-size: 11px; color: #7a8177; }
+.studio-context { color: #435c53; font-size: 11px; line-height: 1.5; white-space: nowrap; }
+.studio-context i { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #6c8c73; margin-right: 6px; }
+.studio-context > span { display: block; color: #848a7c; font-size: 9px; margin-top: 5px; }
+.chapter-nav-bar, .song-nav-bar { margin: 0 28px; padding: 18px 6px; background: transparent; border-top: 1px solid #dedfd4; border-bottom: 1px solid #dedfd4; box-shadow: none; gap: 14px; }
+.chapter-header-title { color: #233a3e; font-size: 18px; font-weight: 600; }
+.chapter-select-box { border-color: #dcded2; border-radius: 7px; color: #435749; background: #fffefa; }
+.chapter-pill, .stanza-pill { border: 1px solid transparent; background: transparent; color: #6d786b; box-shadow: none; border-radius: 7px; min-width: 32px; }
+.chapter-pill:hover, .stanza-pill:hover { background: #e8e8dc; border-color: transparent; }
+.chapter-pill.active, .stanza-pill.active { background: #233f44; color: #fffefa; border-color: #233f44; box-shadow: none; }
+.verses-scroll-area, .stanzas-scroll-area { padding: 24px 34px 120px; }
+.verse-card, .stanza-card { background: #fffefa; border: 1px solid #e2e3d7; border-radius: 12px; box-shadow: 0 2px 3px #273c3203; padding: 22px 24px; margin-bottom: 14px; }
+.verse-card:hover, .stanza-card:hover { border-color: #b7c0ad; background: #fffefa; transform: none; box-shadow: 0 5px 14px #203c3207; }
+.verse-card.selected-live, .stanza-card.live-projecting { border-color: #a5b59a; background: #f0f3e9; box-shadow: inset 3px 0 #516c51; }
+.verse-ml { color: #243c3c; line-height: 1.65; font-size: 23px; }
+.verse-en { color: #778072; line-height: 1.65; font-size: 14px; }
+.verse-number { background: #f1f0e8; color: #87907e; border-color: #e4e5d9; }
+.verse-card.selected-live .verse-number { background: #233f44; color: #fffefa; }
+.verse-num-badge .v-num { color: #8b7851; }
+.verse-card.selected-live .verse-num-badge .v-num { color: #476347; }
+.verse-card.selected-live .live-tag { color: #476347; background: #dce6d1; }
+.live-status-pill.live-here { color: #466548; background: #e5ebdd; border-color: #cdd8c1; font-size: 9px; }
+.history-bar-container { border-color: #e0e2d5; background: transparent; }
+.history-chip { background: #fffefa; border-color: #dedfd3; color: #4b6252; }
+.floating-live-dock { border-radius: 14px; background: #172c35; border: 1px solid #455853; padding: 11px 16px; bottom: 22px; box-shadow: 0 12px 36px #142e3528; max-width: calc(100vw - 32px); }
+.dock-live-status { background: transparent; color: #fffefa; }
+.dock-live-text { color: #e9eee4; }
+.dock-status-tag { color: #b6d4ad; font-size: 9px; letter-spacing: 1.5px; }
+.dock-pulse-dot { background: #95b38b; box-shadow: none; }
+.dock-divider { background: #ffffff20; }
+.dock-btn { color: #b8c7bf; background: #ffffff07; border-color: transparent; border-radius: 7px; font-size: 11px; padding: 8px 11px; }
+.dock-btn:hover { background: #ffffff15; color: #fffefa; }
+.dock-btn span { filter: grayscale(1); }
+.dock-btn-proj { background: #dfc58b; border-color: #dfc58b; color: #213735; }
+.dock-btn-proj:hover { background: #eed9aa; color: #172c35; }
+.dock-btn.active, .dock-btn-holding.active { background: #675a35; color: #fff0ca; border-color: #b29b56; }
+.floating-preview-card { border-radius: 14px; overflow: hidden; border-color: #d7dccd; box-shadow: 0 14px 48px #172c3525; bottom: 104px; }
+.floating-preview-header { background: #fffefa; color: #435c53; }
+.sidebar-mode-toggle-bar { background: transparent; border-color: #ffffff12; }
+.sidebar-mode-btn { color: #9bb1ad; font-size: 10px; }
+.sidebar-mode-btn.active { background: #ffffff0c; color: #dfc58b; border-bottom-color: #dfc58b; }
+.songs-scroll-area, .setlist-scroll-area { background: transparent; padding: 12px; }
+.song-item-btn, .setlist-item-card { background: transparent; border-color: #ffffff0a; border-radius: 9px; }
+.song-item-btn:hover, .setlist-item-card:hover { background: #ffffff08; border-color: #ffffff15; }
+.song-item-title-ml, .setlist-item-ml { color: #e2e9e1; }
+.song-item-title-en, .setlist-item-en { color: #9aafab; }
+.song-item-btn.active, .setlist-item-card.active { background: #dfc58b; border-color: #dfc58b; }
+.song-item-btn.active .song-item-title-ml, .song-item-btn.active .song-item-title-en, .setlist-item-card.active .setlist-item-ml, .setlist-item-card.active .setlist-item-en { color: #233f44; }
+.song-num-badge, .setlist-step-num { background: #ffffff0c; color: #b5c6bc; border-color: #ffffff12; }
+.song-item-btn.active .song-num-badge { background: #ffffff35; color: #233f44; }
+.song-meta-pill { color: #a5b5a7; background: #ffffff08; border-color: #ffffff12; }
+.song-active-title-ml, .stanza-text-ml { color: #243c3c; }
+.song-active-title-en, .stanza-text-en { color: #778072; }
+.stanza-label-badge, .song-number-badge { color: #60734f; background: #eceee2; border-color: #d9ddcc; }
+.btn-mini-add-song { color: #e8d5a6; background: #ffffff08; border-color: #ffffff22; }
+.setlist-event-bar { background: transparent; border-color: #ffffff12; }
+.setlist-event-label { color: #a5b5ad; }
+.setlist-event-select { background: #243d46; color: #e2e9e1; border-color: #ffffff20; }
+.btn-secondary { background: #fffefa; color: #52664f; border-color: #d9ddcc; }
+.song-header-row { flex-wrap: wrap; gap: 12px; }
+.song-header-actions .btn { padding: 9px 12px; border: 1px solid #d9ddcc; border-radius: 8px; font-size: 11px; cursor: pointer; }
+.song-header-actions .btn-primary { border-color: #233f44; color: #fffefa; }
+.stanza-card.active { border-color: #a5b59a; background: #f0f3e9; }
+.sidebar-mode-toggle-bar { gap: 3px; padding: 8px; }
+.sidebar-mode-btn { min-width: 0; padding: 8px 5px; }
+.history-chip.active { background: #eee3c8; color: #645129; border-color: #d4bc82; }
+.song-category-tag { background: #eeeee4; color: #64734f; border-color: #d9ddcc; }
+.modal-dialog { border-radius: 16px; border-color: #e4e3d8; background: #fffefa; box-shadow: 0 24px 80px #172c3530; }
+.modal-header { background: #f7f6f0; border-color: #e4e3d8; }
+.modal-title { color: #233f44; }
+.form-control { border-color: #d9ddce; border-radius: 8px; }
+@media (min-width: 1025px) and (max-width: 1450px) {
+    .app-header { gap: 10px; padding: 0 16px; }
+    .brand-section { width: 250px; gap: 8px; }
+    .search-wrapper { max-width: 240px; }
+    .nav-mode-btn { padding: 9px 10px; }
+    .header-actions { gap: 5px; }
+    .header-actions .btn-default-screen, .header-actions .btn-blank { display: none; }
+}
+@media (max-width: 1024px) {
+    .app-header { height: auto; min-height: 68px; padding: 12px 16px; gap: 10px; }
+    .brand-section { width: auto; }
+    .church-main-title { font-size: 21px; }
+    .church-sub-title { font-size: 7px; }
+    .church-header-logo { width: 34px; height: 34px; }
+    .workbench-grid { height: auto; grid-template-columns: 1fr; }
+    .header-actions { flex-wrap: wrap; justify-content: flex-start; }
+    .header-actions .btn { flex: 0 0 auto; min-height: 34px; height: 34px; padding: 6px 9px; font-size: 11px; }
+    .mobile-nav-bar { background: #fffefa; border-color: #e3e2d9; box-shadow: 0 3px 8px #172c3508; }
+    .mobile-nav-tab { background: #f3f2ec; color: #6b786e; border-color: #e4e3d8; font-size: 12px; }
+    .mobile-nav-tab.active { background: #233f44; color: #fffefa; border-color: #233f44; box-shadow: none; }
+    .mobile-nav-tab .mob-tab-icon { filter: grayscale(1); }
+    .mob-live-dot { background: #95b38b; box-shadow: none; }
+    .mob-back-btn { background: #eeeee4; color: #52664f; border-color: #d9ddcc; }
+    .mobile-bottom-bar { background: #172c35; border-color: #455853; color: #e9eee4; box-shadow: 0 -3px 16px #172c3515; }
+    .mob-btn-action { background: #ffffff0c; color: #e9eee4; border-color: #ffffff15; }
+    .mob-live-badge-text { color: #e9eee4; }
+    .mob-btn-proj { background: #dfc58b; border-color: #dfc58b; color: #233f44; }
+    .studio-intro { padding: 20px; }
+    .studio-context { display: none; }
+    .chapter-nav-bar, .song-nav-bar { margin: 0 14px; padding: 14px 6px; }
+    .verses-scroll-area, .stanzas-scroll-area { padding: 18px 20px 90px; }
+    .chapter-header-title { font-size: 16px; }
+    .workbench-grid[data-mob-tab="live"] ~ #floating-preview-card { margin: 20px auto; }
+}
+@media (max-width: 640px) {
+    .studio-intro h1 { font-size: 26px; }
+    .studio-intro { padding: 18px 20px; }
+    .verse-card, .stanza-card { padding: 18px; }
+    .nav-mode-btn { padding: 8px 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
+}
