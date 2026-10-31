@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Church Projector Screen - Church of God Alappuzha Town</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=holding-1">
+    <link rel="stylesheet" href="holding-screen.css?v=clear-lyrics-1">
 </head>
 <body class="projector-body theme-dark-midnight mode-verse">
 
@@ -12,7 +13,8 @@
     <div id="black-overlay"></div>
 
     <!-- 2. Authentic Alappuzha Town Default / Holding Screen (W key) -->
-    <div id="default-screen-overlay" class="default-holding-screen">
+    <div id="default-screen-overlay" class="default-holding-screen use-attached-slide">
+        <img class="attached-holding-slide" src="holding-screen-large.png" alt="Church of God Alappuzha Town — Welcome, Worship, Fellowship. Psalm 150:6">
         <div class="holding-card">
             <!-- Accent Top Bar -->
             <div id="card-accent-bar-top" class="card-accent-bar top-bar"></div>
@@ -20,7 +22,7 @@
             <div class="holding-card-inner">
                 <!-- Center Logo Card -->
                 <div class="logo-card-frame">
-                    <img id="holding-emblem-img" src="alappuzha_cog_logo.png" alt="Church of God Kerala State Logo" class="holding-emblem-img">
+                    <img id="holding-emblem-img" src="church-logo.png" alt="Church of God Kerala State Logo" class="holding-emblem-img">
                 </div>
 
                 <!-- Text Branding -->
@@ -44,12 +46,12 @@
     <div class="projector-viewport" id="projector-container">
         <!-- Subtle Background Center Watermark -->
         <div class="projector-watermark-bg" id="projector-watermark-bg">
-            <img src="alappuzha_emblem_trans.png" alt="Watermark Emblem">
+            <img src="church-logo.png" alt="Watermark Emblem">
         </div>
 
         <!-- Corner Discreet Watermark -->
         <div class="projector-corner-watermark" id="projector-corner-watermark">
-            <img src="alappuzha_emblem_trans.png" alt="Emblem">
+            <img src="church-logo.png" alt="Emblem">
             <div class="corner-watermark-text">
                 <span class="church-line">COG ALAPPUZHA TOWN</span>
                 <span class="state-line">KERALA STATE</span>
@@ -72,6 +74,6 @@
         </div>
     </div>
 
-    <script src="projector.js"></script>
+    <script src="projector.js?v=native-projector-1"></script>
 </body>
 </html>

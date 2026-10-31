@@ -39,7 +39,10 @@ let serviceEvents = {
 let currentEnglishVersion = 'nkjv'; // 'nkjv' | 'niv' | 'kjv'
 let scriptureLayout = 'dual';        // 'dual' | 'malayalam' | 'english'
 let verseHistory = [];               // History of projected verses
-let showWatermark = true;
+let showWatermark = false;
+let songShowEnglish = false;
+let songFontMl = 64;
+let songFontEn = 42;
 let displayMode = 'VERSE';          // 'VERSE' | 'DEFAULT' | 'BLACK'
 let currentTheme = 'dark-midnight';
 let malFontSize = 46;
@@ -128,6 +131,7 @@ function getVerseEnglish(v) {
 
 async function init() {
     try {
+        loadProjectorPreferences();
         // 1. Fetch Scriptures
         const bibleRes = await fetch('bible_dual.json');
         bibleData = await bibleRes.json();
@@ -534,6 +538,9 @@ function scrollToVerse(verseNum) {
 }
 
 function projectVerse(bookIdx, chapterNum, verseNum) {
+    const reference = document.getElementById('preview-ref');
+    if (reference) reference.style.display = '';
+    applyScriptureLayoutUI(scriptureLayout);
     liveSongIndex = -1; // Clear live song
     liveStanzaIndex = -1;
 
@@ -889,6 +896,12 @@ function scrollToStanza(stIdx) {
 }
 
 function projectSong(songIdx, stanzaIdx) {
+    const songLayout = songShowEnglish ? 'dual' : 'malayalam';
+    const box = document.getElementById('preview-box');
+    if (box) {
+        box.classList.remove('layout-dual', 'layout-malayalam', 'layout-english');
+        box.classList.add(`layout-${songLayout}`);
+    }
     liveSongIndex = songIdx;
     liveStanzaIndex = stanzaIdx;
     viewingSongIndex = songIdx;
@@ -910,9 +923,10 @@ function projectSong(songIdx, stanzaIdx) {
     // Update Live Mirror Box
     const previewRefEl = document.getElementById('preview-ref');
     if (previewRefEl) {
-        if (scriptureLayout === 'malayalam') {
+        previewRefEl.style.display = 'none';
+        if (songLayout === 'malayalam') {
             previewRefEl.innerText = `ഗാനം #${song.number}: ${song.title_ml} • [${stanza.label}]`;
-        } else if (scriptureLayout === 'english') {
+        } else if (songLayout === 'english') {
             previewRefEl.innerText = `Song #${song.number}: ${song.title_en} • [${stanza.label}]`;
         } else {
             previewRefEl.innerText = `ഗാനം #${song.number}: ${song.title_ml} | ${song.title_en} • [${stanza.label}]`;
@@ -928,7 +942,7 @@ function projectSong(songIdx, stanzaIdx) {
         type: 'SONG_CHANGE',
         mode: 'VERSE',
         displayMode: 'VERSE',
-        scriptureLayout: scriptureLayout,
+        scriptureLayout: songLayout,
         songNumber: song.number,
         songTitleMl: song.title_ml,
         songTitleEn: song.title_en,
@@ -939,8 +953,8 @@ function projectSong(songIdx, stanzaIdx) {
         showChurchLogo: showWatermark,
         isBlank: false,
         theme: currentTheme,
-        malFontSize: parseInt(document.getElementById('proj-font-ml')?.value || malFontSize),
-        engFontSize: parseInt(document.getElementById('proj-font-en')?.value || engFontSize)
+        malFontSize: songFontMl,
+        engFontSize: songFontEn
     };
 
     channel.postMessage(payload);
@@ -1109,7 +1123,12 @@ function loadServiceSetlists() {
     try {
         const savedEvents = localStorage.getItem('church_service_events');
         if (savedEvents) {
-            serviceEvents = JSON.parse(savedEvents);
+            const parsed = JSON.parse(savedEvents);
+            if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                const valid = Object.entries(parsed).filter(([name, songs]) =>
+                    name !== '__NEW__' && !['__proto__', 'constructor', 'prototype'].includes(name) && Array.isArray(songs));
+                if (valid.length) serviceEvents = Object.fromEntries(valid);
+            }
         }
         const savedCurrent = localStorage.getItem('church_current_event');
         if (savedCurrent && serviceEvents[savedCurrent]) {
@@ -1124,12 +1143,21 @@ function loadServiceSetlists() {
     updateSetlistBadge();
 }
 
+function openSavedEvents() {
+    switchMainMode('SONGS');
+    switchSongsSidebarTab('SETLIST');
+}
+
 function saveServiceSetlists() {
     try {
         localStorage.setItem('church_service_events', JSON.stringify(serviceEvents));
         localStorage.setItem('church_current_event', currentEventName);
+        const status = document.getElementById('event-save-status');
+        if (status) status.textContent = `Saved on this browser: ${currentEventName}`;
     } catch (e) {
         console.error('Failed to save service events', e);
+        const status = document.getElementById('event-save-status');
+        if (status) status.textContent = 'Could not save. Browser storage may be full or unavailable.';
     }
     updateSetlistBadge();
 }
@@ -1213,6 +1241,10 @@ function confirmCreateEvent() {
     const input = document.getElementById('new-event-name-input');
     const name = input ? input.value.trim() : '';
     if (!name) return;
+    if (['__NEW__', '__proto__', 'constructor', 'prototype'].includes(name)) {
+        alert('Please choose a different event name.');
+        return;
+    }
     if (!serviceEvents[name]) {
         serviceEvents[name] = [];
     }
@@ -1622,8 +1654,107 @@ function broadcastDisplayMode() {
     }
 }
 
-function openProjectorWindow() {
-    window.open('projector.html', 'ChurchProjectorWindow', 'width=1280,height=720,menubar=no,toolbar=no,location=no,status=no');
+let projectorWindow = null;
+let projectorScreens = null;
+
+function projectorNotice(message) {
+    let notice = document.getElementById('projector-screen-notice');
+    if (!notice) {
+        notice = document.createElement('div');
+        notice.id = 'projector-screen-notice';
+        notice.setAttribute('role', 'status');
+        notice.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:10000;max-width:560px;padding:14px 20px;border-radius:10px;background:#172b35;color:white;box-shadow:0 4px 20px #0004;font:15px/1.5 system-ui';
+        document.body.appendChild(notice);
+    }
+    notice.textContent = message;
+    notice.hidden = false;
+    clearTimeout(projectorNotice.timer);
+    projectorNotice.timer = setTimeout(() => { notice.hidden = true; }, 12000);
+}
+
+function placeProjectorOnSecondScreen() {
+    if (!projectorWindow || projectorWindow.closed || !projectorScreens) return;
+    const current = projectorScreens.currentScreen;
+    const others = projectorScreens.screens.filter(screen =>
+        screen !== current && !(screen.left === current.left && screen.top === current.top));
+    const target = others.find(screen => !screen.isInternal) || others[0];
+    if (!target) {
+        projectorNotice('Only one screen detected. Choose Windows + P > Extend, then click OPEN PROJECTOR again.');
+        return;
+    }
+    try {
+        projectorWindow.moveTo(target.availLeft, target.availTop);
+        projectorWindow.resizeTo(target.availWidth, target.availHeight);
+        projectorWindow.focus();
+        projectorNotice('Projector sent to the second screen. Opening full screen…');
+    } catch (error) {
+        projectorNotice('Move the projector window to the second screen with Windows + Shift + Right Arrow, then press F11.');
+    }
+}
+
+async function enterProjectorFullscreen(target) {
+    try {
+        const doc = projectorWindow.document;
+        if (doc.fullscreenElement) return;
+        await doc.documentElement.requestFullscreen(target ? { screen: target, navigationUI: 'hide' } : { navigationUI: 'hide' });
+        projectorNotice('Projector is full screen. Press Esc on the projector to exit.');
+    } catch (error) {
+        projectorNotice('Your browser requires one click: click “Enter full screen” on the projector display.');
+        try { projectorWindow.showFullscreenPrompt(); } catch (_) { }
+    }
+}
+
+async function openProjectorWindow() {
+    // The local launcher can start a borderless projector without browser
+    // fullscreen permissions. Relay content because kiosk uses its own profile.
+    try {
+        await syncNativeProjector();
+        const response = await fetch('/__projector', {
+            method: 'POST', headers: { 'Content-Type': 'application/json', 'X-ChurchView': 'local' },
+            body: JSON.stringify({ left: 0, top: 0 })
+        });
+        if (response.ok) {
+            projectorNotice('Full-screen projector opened. Alt + F4 closes the projector window.');
+            return;
+        }
+    } catch (error) { console.warn('Native projector unavailable; using browser window', error); }
+    // Ask before window.open consumes the click's user activation. Otherwise
+    // the browser can reject screen access without ever showing a prompt.
+    let screenAccessFailed = false;
+    if (window.getScreenDetails && !projectorScreens) {
+        try {
+            projectorScreens = await window.getScreenDetails();
+            projectorScreens.addEventListener('screenschange', placeProjectorOnSecondScreen);
+        } catch (error) {
+            screenAccessFailed = true;
+        }
+    }
+    const current = projectorScreens && projectorScreens.currentScreen;
+    const target = projectorScreens && projectorScreens.screens.find(screen =>
+        screen.left !== current.left || screen.top !== current.top);
+    const placement = target
+        ? `,left=${target.availLeft},top=${target.availTop},width=${target.availWidth},height=${target.availHeight}`
+        : ',width=1280,height=720';
+    if (!projectorWindow || projectorWindow.closed) {
+        projectorWindow = window.open('projector.html', 'ChurchProjectorWindow', 'popup=yes,menubar=no,toolbar=no,location=no,status=no' + placement);
+        if (projectorWindow) projectorWindow.addEventListener('load', () => enterProjectorFullscreen(target), { once: true });
+    } else {
+        projectorWindow.focus();
+        enterProjectorFullscreen(target);
+    }
+    if (!projectorWindow) {
+        projectorNotice('Click OPEN PROJECTOR once more now that screen access is set. If blocked again, allow pop-ups for localhost.');
+        return;
+    }
+    if (!window.getScreenDetails) {
+        projectorNotice('Automatic second-screen placement needs Chrome or Edge. You can also move the projector with Windows + Shift + Right Arrow.');
+        return;
+    }
+    if (screenAccessFailed) {
+        projectorNotice('Allow Window management in the browser site settings to use the second screen automatically. For now, move the projector with Windows + Shift + Right Arrow.');
+        return;
+    }
+    placeProjectorOnSecondScreen();
 }
 
 /* ========================================================= */
@@ -1781,6 +1912,7 @@ function setupEventListeners() {
 /* DEFAULT / HOLDING SCREEN CUSTOMIZER                       */
 /* ========================================================= */
 const DEFAULT_HOLDING_CONFIG = {
+    useAttachedSlide: true,
     orgTitle: 'CHURCH OF GOD (FULL GOSPEL) IN INDIA',
     townName: 'ALAPPUZHA TOWN',
     motto: 'WELCOME • WORSHIP • FELLOWSHIP',
@@ -1804,6 +1936,7 @@ function loadHoldingConfig() {
 
 function applyHoldingConfigPresenter(config) {
     if (!config) return;
+    document.getElementById('preview-default-mode')?.classList.toggle('use-attached-slide', config.useAttachedSlide !== false);
     const miniOrg = document.getElementById('mini-title-cog');
     const miniTown = document.getElementById('mini-title-town');
     const miniMotto = document.getElementById('mini-motto');
@@ -1823,7 +1956,7 @@ function applyHoldingConfigPresenter(config) {
     if (miniImg && config.logoDataUrl) {
         miniImg.src = config.logoDataUrl;
     } else if (miniImg && config.logoDataUrl === '') {
-        miniImg.src = 'alappuzha_cog_logo.png';
+        miniImg.src = 'church-logo.png';
     }
 
     if (config.accentColor) {
@@ -1834,6 +1967,7 @@ function applyHoldingConfigPresenter(config) {
 }
 
 function openDefaultScreenModal() {
+    document.getElementById('edit-def-attached-slide').checked = currentHoldingConfig.useAttachedSlide !== false;
     document.getElementById('edit-def-org').value = currentHoldingConfig.orgTitle || '';
     document.getElementById('edit-def-town').value = currentHoldingConfig.townName || '';
     document.getElementById('edit-def-motto').value = currentHoldingConfig.motto || '';
@@ -1865,6 +1999,7 @@ function saveDefaultScreenConfig() {
 
     const updateAndBroadcast = (logoUrl) => {
         currentHoldingConfig = {
+            useAttachedSlide: document.getElementById('edit-def-attached-slide').checked,
             orgTitle: org || DEFAULT_HOLDING_CONFIG.orgTitle,
             townName: town || DEFAULT_HOLDING_CONFIG.townName,
             motto: motto || DEFAULT_HOLDING_CONFIG.motto,
@@ -1934,7 +2069,7 @@ function setScriptureDisplayMode(mode) {
 
     channel.postMessage({
         type: 'LAYOUT_CHANGE',
-        scriptureLayout: scriptureLayout
+        scriptureLayout: liveSongIndex !== -1 ? (songShowEnglish ? 'dual' : 'malayalam') : scriptureLayout
     });
 }
 
@@ -2051,6 +2186,79 @@ function closeHelpModal() {
     if (modal) modal.style.display = 'none';
 }
 
+function loadProjectorPreferences() {
+    try {
+        const songSizes = JSON.parse(localStorage.getItem('church_song_font_sizes') || '{}');
+        if (Number.isFinite(songSizes.ml) && songSizes.ml >= 32 && songSizes.ml <= 110) songFontMl = songSizes.ml;
+        if (Number.isFinite(songSizes.en) && songSizes.en >= 24 && songSizes.en <= 90) songFontEn = songSizes.en;
+        updateSongFontControls();
+        songShowEnglish = localStorage.getItem('church_song_show_english') === 'true';
+        const songCheckbox = document.getElementById('song-show-english');
+        if (songCheckbox) songCheckbox.checked = songShowEnglish;
+        showWatermark = localStorage.getItem('church_corner_logo') === 'true';
+        const logoCheckbox = document.getElementById('toggle-watermark-check');
+        if (logoCheckbox) logoCheckbox.checked = showWatermark;
+        updatePreviewWatermark();
+        const saved = JSON.parse(localStorage.getItem('church_projector_preferences') ||
+            localStorage.getItem('church_live_state') || 'null');
+        if (!saved) return;
+        const ml = Number(saved.malFontSize);
+        const en = Number(saved.engFontSize);
+        if (Number.isFinite(ml) && ml >= 30 && ml <= 110) malFontSize = ml;
+        if (Number.isFinite(en) && en >= 20 && en <= 90) engFontSize = en;
+        for (const [id, badgeId, size] of [
+            ['proj-font-ml', 'val-font-ml', malFontSize],
+            ['proj-font-en', 'val-font-en', engFontSize]
+        ]) {
+            const slider = document.getElementById(id);
+            const badge = document.getElementById(badgeId);
+            if (slider) slider.value = size;
+            if (badge) badge.innerText = `${size}px`;
+        }
+    } catch (error) { console.warn('Could not restore verse sizes', error); }
+}
+
+function saveProjectorPreferences() {
+    try {
+        localStorage.setItem('church_projector_preferences', JSON.stringify({ malFontSize, engFontSize }));
+    } catch (error) { console.warn('Could not save verse sizes', error); }
+}
+
+function updateSongFontControls() {
+    for (const [language, size] of [['ml', songFontMl], ['en', songFontEn]]) {
+        const input = document.getElementById(`song-font-${language}`);
+        const value = document.getElementById(`song-font-${language}-value`);
+        if (input) input.value = size;
+        if (value) value.textContent = `${size}px`;
+    }
+}
+
+function setSongFontSize(language, value) {
+    const size = Number(value);
+    if (!Number.isFinite(size)) return;
+    if (language === 'ml') songFontMl = Math.min(110, Math.max(32, size));
+    else if (language === 'en') songFontEn = Math.min(90, Math.max(24, size));
+    else return;
+    updateSongFontControls();
+    try { localStorage.setItem('church_song_font_sizes', JSON.stringify({ ml: songFontMl, en: songFontEn })); }
+    catch (error) { console.warn('Could not save lyric sizes', error); }
+    if (liveSongIndex !== -1) projectSong(liveSongIndex, liveStanzaIndex);
+}
+
+function updatePreviewWatermark() {
+    const background = document.getElementById('preview-watermark-bg');
+    const corner = document.getElementById('preview-corner-tag');
+    if (background) background.style.display = 'none';
+    if (corner) corner.style.display = showWatermark ? 'block' : 'none';
+}
+
+function setSongEnglishVisible(visible) {
+    songShowEnglish = Boolean(visible);
+    try { localStorage.setItem('church_song_show_english', String(songShowEnglish)); }
+    catch (error) { console.warn('Could not save song language preference', error); }
+    if (liveSongIndex !== -1) projectSong(liveSongIndex, liveStanzaIndex);
+}
+
 function onProjFontMlChange(val) {
     malFontSize = parseInt(val) || 46;
     const badge = document.getElementById('val-font-ml');
@@ -2066,11 +2274,15 @@ function onProjFontEnChange(val) {
 }
 
 function broadcastSettings() {
+    saveProjectorPreferences();
     const themeSelect = document.getElementById('theme-select');
     if (themeSelect) currentTheme = themeSelect.value;
     
     const watermarkCheck = document.getElementById('toggle-watermark-check');
     if (watermarkCheck) showWatermark = watermarkCheck.checked;
+    try { localStorage.setItem('church_corner_logo', String(showWatermark)); }
+    catch (error) { console.warn('Could not save logo preference', error); }
+    updatePreviewWatermark();
 
     const payload = {
         type: 'SETTINGS_UPDATE',
@@ -2090,4 +2302,22 @@ function broadcastSettings() {
     }
 }
 
+let nativeSyncBusy = false;
+let nativeLastSnapshot = '';
+async function syncNativeProjector() {
+    if (nativeSyncBusy) return;
+    const snapshot = JSON.stringify({
+        live: JSON.parse(localStorage.getItem('church_live_state') || 'null'),
+        holding: currentHoldingConfig
+    });
+    if (snapshot === nativeLastSnapshot) return;
+    nativeSyncBusy = true;
+    try {
+        const result = await fetch('/__snapshot', {
+            method: 'POST', headers: { 'Content-Type': 'application/json', 'X-ChurchView': 'local' }, body: snapshot
+        });
+        if (result.ok) nativeLastSnapshot = snapshot;
+    } finally { nativeSyncBusy = false; }
+}
+setInterval(() => syncNativeProjector().catch(() => {}), 250);
 window.onload = init;

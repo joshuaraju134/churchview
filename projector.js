@@ -102,6 +102,7 @@ function applyPayload(data) {
 
     // 4. Song Content (VerseView style)
     if (data.type === 'SONG_CHANGE') {
+        if (elRef) elRef.style.display = 'none';
         isCurrentSong = true;
         currentSongPayload = data;
         if (elContainer) elContainer.classList.add('verse-fade');
@@ -122,6 +123,7 @@ function applyPayload(data) {
             setDisplayMode('VERSE');
         }
     } else if (data.type === 'VERSE_CHANGE') {
+        if (elRef) elRef.style.display = '';
         isCurrentSong = false;
         currentSongPayload = null;
         if (elContainer) elContainer.classList.add('verse-fade');
@@ -171,6 +173,7 @@ function applyPayload(data) {
 
 function applyHoldingConfig(config) {
     if (!config) return;
+    document.getElementById('default-screen-overlay')?.classList.toggle('use-attached-slide', config.useAttachedSlide !== false);
     const elTitle = document.getElementById('holding-title-main');
     const elTown = document.getElementById('holding-church-town');
     const elMotto = document.getElementById('holding-motto');
@@ -190,7 +193,7 @@ function applyHoldingConfig(config) {
     if (elImg && config.logoDataUrl) {
         elImg.src = config.logoDataUrl;
     } else if (elImg && config.logoDataUrl === '') {
-        elImg.src = 'alappuzha_cog_logo.png';
+        elImg.src = 'church-logo.png';
     }
 
     if (config.accentColor) {
@@ -235,6 +238,47 @@ window.onload = () => {
 };
 
 // Toggle Fullscreen function
+if (new URLSearchParams(location.search).get('native') === '1') {
+    let previousSnapshot = '';
+    let polling = false;
+    const pollPresenter = async () => {
+        if (polling) return;
+        polling = true;
+        try {
+            const response = await fetch('/__snapshot', { cache: 'no-store' });
+            if (!response.ok) return;
+            const text = await response.text();
+            if (text === previousSnapshot) return;
+            const snapshot = JSON.parse(text);
+            if (snapshot.live) applyPayload(snapshot.live);
+            if (snapshot.holding) applyHoldingConfig(snapshot.holding);
+            previousSnapshot = text;
+        } catch (error) { console.warn('Waiting for presenter', error); }
+        finally { polling = false; }
+    };
+    pollPresenter();
+    setInterval(pollPresenter, 250);
+}
+
+function showFullscreenPrompt() {
+    if (document.fullscreenElement) return;
+    let button = document.getElementById('enter-fullscreen-button');
+    if (!button) {
+        button = document.createElement('button');
+        button.id = 'enter-fullscreen-button';
+        button.textContent = 'Enter full screen';
+        button.style.cssText = 'position:fixed;right:20px;top:20px;z-index:20000;padding:12px 20px;border:1px solid #ffffff66;border-radius:8px;background:#18212f;color:white;font:16px system-ui;cursor:pointer';
+        button.onclick = () => document.documentElement.requestFullscreen({ navigationUI: 'hide' }).catch(() => { button.textContent = 'Press F11 for full screen'; });
+        document.body.appendChild(button);
+    }
+    button.hidden = false;
+}
+
+document.addEventListener('fullscreenchange', () => {
+    const button = document.getElementById('enter-fullscreen-button');
+    if (button) button.hidden = Boolean(document.fullscreenElement);
+});
+
 function toggleFullscreen() {
     if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen().catch(err => console.log('Fullscreen error:', err));

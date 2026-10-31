@@ -6,6 +6,7 @@
     <title>ChurchView - Dual Malayalam BSI & NKJV / NIV / KJV & VerseView Songs Projector | Alappuzha Town</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="premium.css">
+    <link rel="stylesheet" href="holding-screen.css?v=clear-lyrics-1">
 </head>
 <body>
 
@@ -22,7 +23,7 @@
             <!-- Church Branding -->
             <div class="brand-section">
                 <button class="btn-sidebar-toggle" onclick="toggleSidebar()" title="Toggle Library Sidebar (Ctrl+B)">☰</button>
-                <img src="alappuzha_cog_logo.png" alt="Church of God Alappuzha Town Logo" class="church-header-logo">
+                <img src="church-logo.png" alt="Church of God Alappuzha Town Logo" class="church-header-logo">
                 <div class="brand-title-wrap">
                     <div class="church-main-title">ChurchView</div>
                     <div class="church-sub-title">COG Alappuzha Town · Worship Studio</div>
@@ -67,6 +68,7 @@
                 </div>
 
                 <!-- Holding / Welcome Screen -->
+                <button class="btn btn-header-action" onclick="openSavedEvents()" title="Create events and open saved church songs">⭐ Events / Saved Songs</button>
                 <button class="btn btn-header-action btn-default-screen" id="default-screen-btn" onclick="toggleDefaultScreen()" title="Project Alappuzha Town Holding Screen (Shortcut: W)">
                     <span>🖼️</span> Holding
                 </button>
@@ -213,17 +215,20 @@
                             </select>
                         </div>
                         <div class="setlist-bar-actions">
+                            <button class="btn-clear-setlist" onclick="openCreateEventModal()">+ New Event</button>
                             <button class="btn-clear-setlist" onclick="clearCurrentSetlist()" title="Clear this setlist">Clear</button>
                         </div>
                     </div>
 
                     <div class="setlist-scroll-area" id="setlist-scroll-area">
+                        <p id="event-save-status" role="status" style="padding:0 12px;font-size:12px;">Changes save automatically on this browser.</p>
+                        <button class="btn btn-secondary" onclick="switchSongsSidebarTab('ALL')" style="margin:0 12px 12px;">+ Add songs from library</button>
                         <div id="setlist-items-container"></div>
                         <div id="setlist-empty-msg" class="empty-search-msg" style="display: none;">
                             <span style="font-size: 24px;">⭐</span>
                             <div style="font-weight: 700; color: #cbd5e1; margin-top: 4px;">No songs in this setlist yet</div>
                             <div style="font-size: 11.5px; color: #64748b; text-align: center; max-width: 200px; margin-top: 4px;">
-                                Click the <span style="color: var(--primary-gold);">☆</span> on any song in "All Songs" to add it for Sunday service!
+                                Choose “Add songs from library”, then click ☆ beside each song to save it to the selected event.
                             </div>
                         </div>
                     </div>
@@ -277,6 +282,15 @@
                     <span class="studio-context"><i></i> Worship library <span>Malayalam · English · Transliteration</span></span>
                 </div>
                 <div class="song-nav-bar">
+                    <div style="display:flex;flex-wrap:wrap;gap:18px;padding:12px 16px;align-items:center;">
+                        <label>Malayalam lyrics <output id="song-font-ml-value">64px</output>
+                            <input type="range" id="song-font-ml" min="32" max="110" value="64" oninput="setSongFontSize('ml', this.value)" aria-label="Malayalam lyric size">
+                        </label>
+                        <label>English lyrics <output id="song-font-en-value">42px</output>
+                            <input type="range" id="song-font-en" min="24" max="90" value="42" oninput="setSongFontSize('en', this.value)" aria-label="English lyric size">
+                        </label>
+                        <small>Lyric sizes save automatically.</small>
+                    </div>
                     <div class="song-header-row">
                         <button class="mob-back-btn" onclick="setMobileTab('library')" title="Back to Songs list">← Songs</button>
                         <div class="song-header-main">
@@ -287,6 +301,7 @@
                             </div>
                         </div>
                         <div class="song-header-actions">
+<label style="display:flex;gap:8px;align-items:center;cursor:pointer;"><input type="checkbox" id="song-show-english" onchange="setSongEnglishVisible(this.checked)"> Show English lyrics</label>
                             <button class="btn btn-secondary btn-setlist-star" id="btn-toggle-current-setlist" onclick="toggleCurrentSongInSetlist()" title="Add or remove from preplanned worship setlist">
                                 <span id="star-icon">☆</span> <span id="star-text">Add to Service</span>
                             </button>
@@ -369,7 +384,7 @@
                 <!-- Live Mirror Mode (Verses or Songs) -->
                 <div id="preview-verse-mode" class="preview-mode-wrap">
                     <div class="preview-watermark-bg" id="preview-watermark-bg">
-                        <img src="alappuzha_emblem_trans.png" alt="Watermark Emblem">
+                        <img src="church-logo.png" alt="Watermark Emblem">
                     </div>
                     <div class="preview-screen-ref" id="preview-ref">John 3:16</div>
                     <div class="preview-screen-ml" id="preview-ml">Loading...</div>
@@ -378,10 +393,11 @@
                 </div>
 
                 <!-- Default Screen Mirror Mode (Shown when W is active) -->
-                <div id="preview-default-mode" class="preview-mode-wrap preview-default-card" style="display: none;">
+                <div id="preview-default-mode" class="preview-mode-wrap preview-default-card use-attached-slide" style="display: none;">
+                    <img class="attached-holding-slide" src="holding-screen-large.png" alt="Holding screen preview">
                     <div class="mini-accent-bar mini-top" id="mini-accent-bar-top"></div>
                     <div class="mini-emblem-box">
-                        <img src="alappuzha_cog_logo.png" alt="Emblem Logo" id="mini-emblem-img">
+                        <img src="church-logo.png" alt="Emblem Logo" id="mini-emblem-img">
                     </div>
                     <div class="mini-title-cog" id="mini-title-cog">CHURCH OF GOD (FULL GOSPEL) IN INDIA</div>
                     <div class="mini-title-town" id="mini-title-town">ALAPPUZHA TOWN</div>
@@ -422,6 +438,8 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
+                    <label><input type="checkbox" id="edit-def-attached-slide" checked> Use the attached PowerPoint holding screen</label>
+                    <p>Uncheck to use the editable text, colors and logo below.</p>
                     <label>Denomination / Main Heading:</label>
                     <input type="text" id="edit-def-org" class="form-control" placeholder="e.g. CHURCH OF GOD (FULL GOSPEL) IN INDIA">
                 </div>
@@ -524,6 +542,7 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label>Projector Theme:</label>
+                    <p style="font-size:12px;">Verse sizes save automatically and return next time you open ChurchView.</p>
                     <select id="theme-select" class="form-control" onchange="broadcastSettings()">
                         <option value="dark-midnight" selected>Midnight Navy (High Clarity)</option>
                         <option value="pure-black">Pure Black (OLED / High Contrast)</option>
@@ -537,7 +556,7 @@
                         <label>Projector Malayalam Font Size:</label>
                         <span id="val-font-ml" style="font-weight: 700; color: var(--primary-gold);">46px</span>
                     </div>
-                    <input type="range" id="proj-font-ml" class="clean-slider" min="30" max="68" value="46" oninput="onProjFontMlChange(this.value)">
+                    <input type="range" id="proj-font-ml" class="clean-slider" min="30" max="110" value="46" oninput="onProjFontMlChange(this.value)">
                 </div>
 
                 <div class="form-group">
@@ -545,15 +564,15 @@
                         <label>Projector English Font Size:</label>
                         <span id="val-font-en" style="font-weight: 700; color: var(--primary-gold);">30px</span>
                     </div>
-                    <input type="range" id="proj-font-en" class="clean-slider" min="20" max="50" value="30" oninput="onProjFontEnChange(this.value)">
+                    <input type="range" id="proj-font-en" class="clean-slider" min="20" max="90" value="30" oninput="onProjFontEnChange(this.value)">
                 </div>
 
                 <div class="form-group" style="flex-direction: row; align-items: center; justify-content: space-between; padding: 10px 0; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
                     <div>
-                        <div style="font-size: 13.5px; font-weight: 600; color: #f1f5f9;">Church Watermark Emblem</div>
-                        <div style="font-size: 11.5px; color: #94a3b8;">Show subtle Alappuzha Town emblem on audience display</div>
+                        <div style="font-size: 13.5px; font-weight: 600; color: #f1f5f9;">Small corner logo (optional)</div>
+                        <div style="font-size: 11.5px; color: #94a3b8;">Off by default for clear verses and lyrics</div>
                     </div>
-                    <input type="checkbox" id="toggle-watermark-check" checked onchange="broadcastSettings()" style="width: 20px; height: 20px; accent-color: var(--primary-gold); cursor: pointer;">
+                    <input type="checkbox" id="toggle-watermark-check" onchange="broadcastSettings()" style="width: 20px; height: 20px; accent-color: var(--primary-gold); cursor: pointer;">
                 </div>
 
                 <div class="form-group" style="margin-top: 6px;">
@@ -614,6 +633,6 @@
         </div>
     </div>
 
-    <script src="presenter.js"></script>
+    <script src="presenter.js?v=native-projector-1"></script>
 </body>
 </html>
